@@ -6,6 +6,7 @@ camera = picamera.PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 24
 
+"""
 HOST = '0.0.0.0'  # Listen on all interfaces
 PORT = 12345
 
@@ -18,8 +19,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print('Connected by', addr)
         data = conn.recv(1024)
         print('Received:', data.decode())
-
-
+"""
 
 # Set up UDP socket
 UDP_IP = "127.0.0.1"
