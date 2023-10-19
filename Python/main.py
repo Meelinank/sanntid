@@ -1,12 +1,8 @@
-import socket
-import picamera
-import time
 import io
-
-# Set up camera
-camera = picamera.PiCamera()
-camera.resolution = (320, 240)
-camera.framerate = 15
+import socket
+import struct
+import time
+import picamera
 
 # Set up UDP socket
 UDP_IP = "192.168.240.212"
@@ -14,24 +10,23 @@ UDP_PORT = 5005
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 65536)
 
-# Start recording
+# Set up PiCamera
+camera = picamera.PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 24
+
+# Start recording video
 stream = io.BytesIO()
-camera.start_recording(stream, format='h264')
-try:
-    while True:
-        # Wait for the buffer to fill up
-        time.sleep(1)
+for _ in camera.capture_continuous(stream, 'jpeg', use_video_port=True):
+    # Get frame data
+    frame = stream.getvalue()
 
-        # Send the buffer over UDP
-        sock.sendto(stream.getvalue(), (UDP_IP, UDP_PORT))
+    # Send frame over UDP socket
+    sock.sendto(frame, (UDP_IP, UDP_PORT))
 
-        # Reset the buffer for the next frame
-        stream.seek(0)
-        stream.truncate()
+    # Reset stream for next frame
+    stream.seek(0)
+    stream.truncate()
 
-finally:
-    # Stop recording
-    camera.stop_recording()
-
-    # Close socket
-    sock.close()
+    # Wait for next frame
+    time.sleep(0.01)
