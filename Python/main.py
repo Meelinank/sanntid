@@ -5,8 +5,8 @@ import io
 
 # Set up camera
 camera = picamera.PiCamera()
-camera.resolution = (640, 480)
-camera.framerate = 24
+camera.resolution = (320, 240)
+camera.framerate = 15
 
 # Set up UDP socket
 UDP_IP = "192.168.240.212"
