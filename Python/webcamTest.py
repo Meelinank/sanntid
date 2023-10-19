@@ -6,7 +6,7 @@ import socket
 UDP_IP = "192.168.240.212"
 UDP_PORT = 5005
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((UDP_IP, UDP_PORT))
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 65536)
 
 # Set up OpenCV window
 cv2.namedWindow("Video", cv2.WINDOW_NORMAL)
