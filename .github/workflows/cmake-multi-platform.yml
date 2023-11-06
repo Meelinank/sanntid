@@ -50,14 +50,20 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get update && sudo apt-get install -y ${{ matrix.apt_package }}
 
+    - name: Install vcpkg (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+      shell: cmd
+
     - name: Install OpenCV (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
-        vcpkg install opencv4[${{ matrix.vcpkg_triplet }}]
+        .\vcpkg\vcpkg install opencv4[${{ matrix.vcpkg_triplet }}] --clean-after-build
       shell: cmd
       env:
         VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg_triplet }}
-        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
     - name: Download and install Boost
       id: install-boost
@@ -66,15 +72,15 @@ jobs:
         boost_version: 1.82.0
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: |
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+        -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
         -S ${{ github.workspace }}
       env:
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        OpenCV_DIR: ${{ github.workspace }}/vcpkg/installed/${{ matrix.vcpkg_triplet }}/share/opencv
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
