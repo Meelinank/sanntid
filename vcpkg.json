@@ -1,5 +1,9 @@
 {
   "dependencies": [
-    "boost-asio"
+    "boost-asio",
+    "catch2",
+    "sdl2",
+    "opencv",
+    "nlohmann-json"
   ]
 }
