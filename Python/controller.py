@@ -1,16 +1,17 @@
 import io
 import socket
 import struct
-from datetime import time
+from datetime import time #might be redundant?
 import time
 import sys
 import picamera
 import threading
 import json
+import pi_servo_hat
 
-sys.path.append('/home/pi/sphero-sdk-raspberrypi-python')
+sys.path.append('/home/pi/sphero-sdk-raspberrypi-python')   #path to sphero-sdk-raspberrypi-python library on pi
 from sphero_sdk import SpheroRvrObserver
-from sphero_sdk import Colors
+from sphero_sdk import Colors                               #needed for rvr color commands
 
 # initialize
 SERVER_IP = "10.25.45.112"
@@ -18,6 +19,9 @@ SERVER_PORT_WEBCAM  = 8000
 SERVER_PORT_CONTROL = 8001
 SERVER_PORT_LOGGING = 8002
 rvr = SpheroRvrObserver()
+servo = pi_servo_hat.PiServoHat()
+for i in range(0, 16):
+    servo.position(i, 0)
 
 def webcamStream():
     server_socket = socket.socket()
@@ -57,7 +61,7 @@ def controllerCom():
     server_socket = socket.socket()
     server_socket.bind((SERVER_IP, SERVER_PORT_CONTROL))
     server_socket.listen(0)
-    connection  = server_socket.accept()[0].makefile('wb')
+    connection  = server_socket.accept()[0].makefile('wb') #might not need to makefile?
 
     try:
         while True:
@@ -71,29 +75,29 @@ def sensorDataCom():
     server_socket = socket.socket()
     server_socket.bind((SERVER_IP, SERVER_PORT_LOGGING))
     server_socket.listen(0)
-    
-    rvrTemps        = rvr.get_motor_temperature()
-    rvrLightSensor  = rvr.get_rgbc_sensor_values()
-    rvrAmbientLight = rvr.get_ambient_light_sensor_value()
-    rvrBattery      = rvr.get_battery_percentage()
-    
-    formatedMessage = "{"+"{},{},{},{}".format(rvrTemps,rvrLightSensor,rvrAmbientLight,rvrBattery)+"}"
-    parcell = json.loads(formatedMessage)
-    
+    connection  = server_socket.accept()[0].makefile('wb') #might not need to makefile?
     try:
         while True:
-            server_socket.sendall(parcell)
+                rvrTemps        = rvr.get_motor_temperature()
+                rvrLightSensor  = rvr.get_rgbc_sensor_values()
+                rvrAmbientLight = rvr.get_ambient_light_sensor_value()
+                rvrBattery      = rvr.get_battery_percentage()
+                rvrServoPos     = []
+                for i in range(0, 16):
+                    rvrServoPos.append(servo.position(i))
+                formatedMessage = "{"+"{},{},{},{}".format(rvrTemps,rvrLightSensor,rvrAmbientLight,rvrBattery)+"}"
+                parcell = json.loads(formatedMessage)
+                server_socket.sendall(parcell)
     finally:
         connection.close()
         server_socket.close()
 
 threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
-threadController    = threading.Thread(target=controllerCom, daemon=False)
-threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=False)
+threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
+threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
 
 if __name__ == '__main__':
     try:
-        main()
         threadWebcam.start()
         threadController.start()
         threadSensorLogging.start()
