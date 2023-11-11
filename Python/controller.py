@@ -19,7 +19,7 @@ SERVER_PORT_CONTROL = 8001
 SERVER_PORT_LOGGING = 8002
 rvr = SpheroRvrObserver()
 
-def webcamStream:
+def webcamStream():
     server_socket = socket.socket()
     server_socket.bind((SERVER_IP, SERVER_PORT_WEBCAM))
     server_socket.listen(0)
@@ -53,12 +53,12 @@ def webcamStream:
         connection.close()
         server_socket.close()
 
-def controllerCom:
+def controllerCom():
     server_socket = socket.socket()
     server_socket.bind((SERVER_IP, SERVER_PORT_CONTROL))
     server_socket.listen(0)
     connection  = server_socket.accept()[0].makefile('wb')
-    
+
     try:
         while True:
             orders = server_socket.recv(1024)
@@ -67,7 +67,7 @@ def controllerCom:
         connection.close()
         server_socket.close()
 
-def sensorDataCom:
+def sensorDataCom():
     server_socket = socket.socket()
     server_socket.bind((SERVER_IP, SERVER_PORT_LOGGING))
     server_socket.listen(0)
