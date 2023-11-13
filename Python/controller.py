@@ -8,7 +8,6 @@ import picamera
 import threading
 import json
 import pi_servo_hat
-
 sys.path.append('/home/pi/sphero-sdk-raspberrypi-python')   #path to sphero-sdk-raspberrypi-python library on pi
 from sphero_sdk import SpheroRvrObserver
 from sphero_sdk import Colors                               #needed for rvr color commands
@@ -18,10 +17,8 @@ SERVER_IP = "10.25.45.112"
 SERVER_PORT_WEBCAM  = 8000
 SERVER_PORT_CONTROL = 8001
 SERVER_PORT_LOGGING = 8002
-rvr = SpheroRvrObserver()
+
 servo = pi_servo_hat.PiServoHat()
-for i in range(0, 16):
-    servo.position(i, 0)
 
 def webcamStream():
     server_socket = socket.socket()
@@ -64,6 +61,7 @@ def controllerCom():
     server_socket.listen(0)
     connection  = server_socket.accept()[0].makefile('wb') #might not need to makefile?
     print("Controller connection established ")
+    rvr = SpheroRvrObserver()
     try:
         while True:
             orders = server_socket.recv(1024)
@@ -80,36 +78,48 @@ def sensorDataCom():
     server_socket.listen(0)
     connection  = server_socket.accept()[0].makefile('wb') #might not need to makefile?
     print("SensorData connection established ")
+    rvr = SpheroRvrObserver()
     try:
         while True:
             rvrTemps        = rvr.get_motor_temperature()
             rvrLightSensor  = rvr.get_rgbc_sensor_values()
             rvrAmbientLight = rvr.get_ambient_light_sensor_value()
             rvrBattery      = rvr.get_battery_percentage()
-            rvrServoPos     = []
+            rvrServoPos = []
             for i in range(0, 16):
                 rvrServoPos.append(servo.position(i))
-            #TODO: find proper JSON format for sending data to c++
-            formatedMessage = "{"+"{},{},{},{}".format(rvrTemps,rvrLightSensor,rvrAmbientLight,rvrBattery)+"}"
-            parcell = json.loads(formatedMessage)
-            server_socket.sendall(parcell)
-    finally:
-        connection.close()
-        server_socket.close()
+            data = {
+                "rvrTemps": rvrTemps,
+                "rvrLightSensor": rvrLightSensor,
+                "rvrAmbientLight": rvrAmbientLight,
+                "rvrBattery": rvrBattery,
+                "rvrServoPos": rvrServoPos
+            }
+            json_data = json.dumps(data)
+            server_socket.sendall(json_data.encode())
+            connection.close()
+            server_socket.close()
 
-threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
-threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
-threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
+def main():
+    resetServo()
+    threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
+    threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
+    threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
+    threadWebcam.start()
+    threadController.start()
+    threadSensorLogging.start()  
+    threadWebcam.join()
+    threadController.join()
+    threadSensorLogging.join()
+
+def resetServo():
+    for i in range(0, 16):
+        servo.position(i, 0)
+
 
 if __name__ == '__main__':
     try:
-        threadWebcam.start()
-        threadController.start()
-        threadSensorLogging.start()
-        
-        threadWebcam.join()
-        threadController.join()
-        threadSensorLogging.join()
+        main()
         
     except KeyboardInterrupt:
         rvr.close()
