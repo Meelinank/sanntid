@@ -116,14 +116,11 @@ def resetServo():
     for i in range(0, 16):
         servo.position(i, 0)
 
-
-if __name__ == '__main__':
+if __name__ == '__controller__':
     try:
         main()
-        
     except KeyboardInterrupt:
         rvr.close()
         print('\nProgram terminated with keyboard interrupt.')
-        
     finally:
         rvr.close()
