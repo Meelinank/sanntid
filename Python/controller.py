@@ -99,7 +99,6 @@ def sensorDataCom():
             server_socket.sendall(json_data.encode())
             connection.close()
             server_socket.close()
-
 def main():
     resetServo()
     threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
