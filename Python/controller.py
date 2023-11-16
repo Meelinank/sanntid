@@ -17,7 +17,8 @@ SERVER_IP = "10.25.45.112"
 SERVER_PORT_WEBCAM  = 8000
 SERVER_PORT_CONTROL = 8001
 SERVER_PORT_LOGGING = 8002
-
+rvr = SpheroRvrObserver()
+rvr.set_all_leds(Colors.green)
 #servo = pi_servo_hat.PiServoHat()
 
 def webcamStream():
@@ -61,7 +62,7 @@ def controllerCom():
     server_socket.listen(0)
     connection  = server_socket.accept()[0].makefile('wb') #might not need to makefile?
     print("Controller connection established ")
-    rvr = SpheroRvrObserver()
+
     try:
         while True:
             orders = server_socket.recv(1024)
