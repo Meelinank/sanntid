@@ -18,7 +18,7 @@ SERVER_PORT_WEBCAM  = 8000
 SERVER_PORT_CONTROL = 8001
 SERVER_PORT_LOGGING = 8002
 
-servo = pi_servo_hat.PiServoHat()
+#servo = pi_servo_hat.PiServoHat()
 
 def webcamStream():
     server_socket = socket.socket()
@@ -86,8 +86,8 @@ def sensorDataCom():
             rvrAmbientLight = rvr.get_ambient_light_sensor_value()
             rvrBattery      = rvr.get_battery_percentage()
             rvrServoPos = []
-            for i in range(0, 16):
-                rvrServoPos.append(servo.position(i))
+            #for i in range(0, 16):
+            #    rvrServoPos.append(servo.position(i))
             data = {
                 "rvrTemps": rvrTemps,
                 "rvrLightSensor": rvrLightSensor,
@@ -103,7 +103,7 @@ def sensorDataCom():
         rvr.close()
         print('\nProgram terminated with keyboard interrupt.')
 def main():
-    resetServo()
+    #resetServo()
     threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
     threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
     threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
@@ -114,9 +114,9 @@ def main():
     threadController.join()
     threadSensorLogging.join()
 
-def resetServo():
-    for i in range(0, 16):
-        servo.position(i, 0)
+#def resetServo():
+ #   for i in range(0, 16):
+  #      servo.position(i, 0)
 
 if __name__ == '__controller__':
     try:
