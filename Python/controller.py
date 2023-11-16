@@ -99,6 +99,9 @@ def sensorDataCom():
             server_socket.sendall(json_data.encode())
             connection.close()
             server_socket.close()
+    except KeyboardInterrupt:
+        rvr.close()
+        print('\nProgram terminated with keyboard interrupt.')
 def main():
     resetServo()
     threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
