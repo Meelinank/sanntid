@@ -102,11 +102,12 @@ def sensorDataCom():
     except KeyboardInterrupt:
         rvr.close()
         print('\nProgram terminated with keyboard interrupt.')
+threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
+threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
+threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
 def main():
     #resetServo()
-    threadWebcam        = threading.Thread(target=webcamStream , daemon=True)
-    threadController    = threading.Thread(target=controllerCom, daemon=False) # kept as non daemon to enable easy remote shutdown
-    threadSensorLogging = threading.Thread(target=sensorDataCom, daemon=True)
+
     threadWebcam.start()
     threadController.start()
     threadSensorLogging.start()  
