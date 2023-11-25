@@ -59,8 +59,20 @@ void videoStreamThread() {
 
 
 int main() {
+    boost::asio::io_context io_context;
+    tcp::socket socket(io_context);
+    global_socket = &socket;
+
+    tcp::resolver resolver(io_context);
+    auto endpoints = resolver.resolve("10.25.45.112", "8052");
+    boost::asio::connect(socket, endpoints);
+
+    //std::thread videoThread(videoStreamThread);
+
     cvui::init(WINDOW_NAME);
     cv::Mat frame = cv::Mat(400, 600, CV_8UC3);
+
+    cv::Mat videoFeed; // Create a Mat to hold the video feed
 
     while (true) {
         // Clear the frame
@@ -70,31 +82,53 @@ int main() {
         cv::Point mouse = cvui::mouse();
 
         // Buttons for manual steering
-        if (cvui::button(frame, 50, 50, "Forward")) {
+        if (cvui::button(frame, 30, 50, "Forward")) {
             if (cvui::mouse(cvui::CLICK)) {
                 // Handle the "FORWARD" button click, implement your action here
                 std::cout << "Sending FORWARD command to the robot." << std::endl;
+                send_command(socket, "FORWARD");
             }
         }
-        if (cvui::button(frame, 50, 150, "Backward")) {
+        if (cvui::button(frame, 30, 150, "Backward")) {
             if (cvui::mouse(cvui::CLICK)) {
                 // Handle the "BACKWARD" button click, implement your action here
                 std::cout << "Sending BACKWARD command to the robot." << std::endl;
+                send_command(socket, "BACKWARD");
             }
         }
-        if (cvui::button(frame, 200, 100, "Left")) {
+        if (cvui::button(frame, 150, 100, "Left")) {
             if (cvui::mouse(cvui::CLICK)) {
                 // Handle the "LEFT" button click, implement your action here
                 std::cout << "Sending LEFT command to the robot." << std::endl;
+                send_command(socket, "LEFT");
             }
         }
-        if (cvui::button(frame, 350, 100, "Right")) {
+        if (cvui::button(frame, 250, 100, "Right")) {
             if (cvui::mouse(cvui::CLICK)) {
                 // Handle the "RIGHT" button click, implement your action here
                 std::cout << "Sending RIGHT command to the robot." << std::endl;
+                send_command(socket, "RIGHT");
             }
         }
-
+        if (cvui::button(frame, 350, 150, "STOP!")) {
+            if (cvui::mouse(cvui::CLICK)) {
+                // Handle the "RIGHT" button click, implement your action here
+                std::cout << "Sending STOP command to the robot." << std::endl;
+                send_command(socket, "STOP");
+            }
+        }
+        // Display the video feed
+        /*{
+            std::lock_guard<std::mutex> lock(image_mutex);
+            if (new_frame_available) {
+                cv::imshow("Video", global_frame);
+                new_frame_available = false;
+            }
+        }
+        // Camera UI commented out for now
+        // Display the video feed in your UI
+        cvui::image(frame, 30, 250, videoFeed);
+*/
         // Display the UI frame
         cvui::update();
         cv::imshow(WINDOW_NAME, frame);
