@@ -19,9 +19,9 @@ hostname = socket.gethostname()
 localIP = get_ip()#socket.gethostbyname(hostname)
 
 data = {
-    'username': 'Server IP Webhook',
+    'username': 'Sphere Rover',
     'embeds': [{
-        'title': 'Server started!',
+        'title': 'My local ipv4 address is:',
         'description': hostname + ': ' + localIP,
     }]
 }
