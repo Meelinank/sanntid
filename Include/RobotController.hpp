@@ -9,14 +9,14 @@ class RobotController {
 public:
     RobotController(const std::string& videoServer, const std::string& videoPort,
                     const std::string& commandServer, const std::string& commandPort,
-                    boost::asio::io_service& io_service);
+                    boost::asio::io_service& io_service, CommandSender& cmdSender);
     void start();
     void stop();
     void processFrame(const cv::Mat& frame);
 
 private:
     FrameReceiver frameReceiver;
-    CommandSender commandSender;
+    CommandSender& commandSender;
     std::string lastKnownDirection;
     std::atomic<bool> running;
     std::thread processingThread;

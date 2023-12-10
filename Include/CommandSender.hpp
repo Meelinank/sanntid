@@ -9,7 +9,7 @@ class CommandSender {
 public:
     CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port);
     void sendCommand(const std::string& command);
-
+    void reconnect();
 private:
     boost::asio::ip::tcp::socket command_socket;
 };

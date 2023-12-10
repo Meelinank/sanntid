@@ -5,13 +5,13 @@
 #include "RobotController.hpp"
 #include <boost/asio.hpp>
 
-#define WINDOW_NAME "Robot Control"
+#define WINDOW_NAME "Robot Control" // Name of the window
 
 int main() {
     boost::asio::io_service io_service;
     FrameReceiver frameReceiver(io_service, "10.25.45.112", "8000");
     CommandSender commandSender(io_service, "10.25.45.112", "8001");
-    RobotController robotController("10.25.45.112", "8000", "10.25.45.112", "8001", io_service);
+    RobotController robotController("10.25.45.112", "8000", "10.25.45.112", "8001", io_service, commandSender);
 
     bool manualMode = true;
     frameReceiver.startReceiving();
@@ -28,24 +28,22 @@ int main() {
             cv::imshow("Video Stream", videoFrame);  // Show the video frame
         }
 
+        int key = cv::waitKey(20); // Declare 'key' here so it's available throughout the loop
+
         if (manualMode) {
-            if (cvui::button(frame, 50, 50, "Forward")) {
+            if (key == 119) {  // 'w' key for Forward
                 commandSender.sendCommand("F");
-            }
-            if (cvui::button(frame, 50, 100, "Left")) {
+            } else if (key == 97) {  // 'a' key for Left
                 commandSender.sendCommand("FL");
-            }
-            if (cvui::button(frame, 150, 100, "Right")) {
+            } else if (key == 100) {  // 'd' key for Right
                 commandSender.sendCommand("FR");
-            }
-            if (cvui::button(frame, 50, 150, "Backward")) {
+            } else if (key == 115) {  // 's' key for Backward
                 commandSender.sendCommand("B");
-            }
-            if (cvui::button(frame, 50, 200, "Stop")) {
+            } else if (key == 32) {  // Space bar for Stop
                 commandSender.sendCommand("S");
             }
         } else {
-            if (frameReceiver.hasFrames()) {
+            if (!videoFrame.empty()) {
                 robotController.processFrame(videoFrame);
             }
         }
@@ -55,7 +53,7 @@ int main() {
         cvui::update();
         cv::imshow(WINDOW_NAME, frame);
 
-        if (cv::waitKey(20) == 27) {
+        if (key == 27) { // 'ESC' key to break
             break;
         }
     }
