@@ -4,6 +4,8 @@
 #include "FrameReceiver.hpp"
 #include "CommandSender.hpp"
 #include <opencv2/opencv.hpp>
+#include <atomic>
+#include <thread>
 
 class RobotController {
 public:
@@ -17,9 +19,9 @@ public:
 private:
     FrameReceiver frameReceiver;
     CommandSender& commandSender;
-    std::string lastKnownDirection;
     std::atomic<bool> running;
     std::thread processingThread;
+    int lastKnownHeading;
     void frameProcessingLoop();
 };
 

@@ -7,7 +7,7 @@ RobotController::RobotController(const std::string &videoServer, const std::stri
                                  boost::asio::io_service &io_service, CommandSender &cmdSender)
         : frameReceiver(io_service, videoServer, videoPort),
           commandSender(cmdSender),
-          running(false) {
+          running(false), lastKnownHeading(0) {
 }
 
 void RobotController::start() {
@@ -39,15 +39,11 @@ void RobotController::processFrame(const cv::Mat& frame) {
     try {
         cv::Mat hsvFrame;
         cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
-
         cv::Mat greenMask;
         cv::inRange(hsvFrame, cv::Scalar(35, 50, 50), cv::Scalar(75, 255, 255), greenMask);
 
-        cv::erode(greenMask, greenMask, cv::Mat(), cv::Point(-1, -1), 2);
-        cv::dilate(greenMask, greenMask, cv::Mat(), cv::Point(-1, -1), 2);
-
         std::vector<std::vector<cv::Point>> contours;
-        cv::findContours(greenMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+        cv::findContours(greenMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
         double largestArea = 0.0;
         int largestContourIndex = -1;
@@ -63,26 +59,28 @@ void RobotController::processFrame(const cv::Mat& frame) {
         if (largestContourIndex != -1) {
             cv::Moments m = cv::moments(contours[largestContourIndex]);
             int cx = static_cast<int>(m.m10 / m.m00);
-            int cy = static_cast<int>(m.m01 / m.m00);
+            int heading = static_cast<int>(40 - 100 * (static_cast<float>(cx) / frame.cols));
 
-            // Example of decision logic based on the object's position
-            if (cx < frame.cols / 3) {
-                lastKnownDirection = "L"; // Turn left
-            } else if (cx > 2 * frame.cols / 3) {
-                lastKnownDirection = "R"; // Turn right
-            } else {
-                lastKnownDirection = "F"; // Move forward
-            }
+            lastKnownHeading = heading; // Update last known heading
+            nlohmann::json j;
+            j["command"] = "AUTO";
+            j["heading"] = heading;
+            std::string jsonString = j.dump();
+
+            std::cout << jsonString << std::endl;
+            commandSender.sendCommand(jsonString);
         } else {
-            lastKnownDirection = "S"; // Stop if the object is not found
+            // Continue in the last known direction
+            nlohmann::json j;
+            j["command"] = "AUTO";
+            j["heading"] = lastKnownHeading;
+            std::string jsonString = j.dump();
+
+            std::cout << jsonString << std::endl;
+            commandSender.sendCommand(jsonString);
         }
-
-        std::cout << lastKnownDirection << std::endl;
-
-        commandSender.sendCommand(lastKnownDirection);
     }
-    catch(std::exception & e)
-    {
+    catch (std::exception & e) {
         std::cerr << "Error in frame processing: " << e.what() << std::endl;
     }
 }

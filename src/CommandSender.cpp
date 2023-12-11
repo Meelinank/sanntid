@@ -3,32 +3,53 @@
 #include <chrono>
 
 CommandSender::CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port)
-        : command_socket(io_service) {
-    // Resolve the server address and port
-    boost::asio::ip::tcp::resolver resolver(io_service);
-    boost::asio::ip::tcp::resolver::query query(server, port);
-    boost::asio::connect(command_socket, resolver.resolve(query));
+        : io_service(io_service), server(server), port(port), command_socket(io_service) {
+    connectSocket();
 }
 
-void CommandSender::sendCommand(const std::string& command) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(33));
+bool CommandSender::connectSocket() {
+    try {
+        boost::asio::ip::tcp::resolver resolver(io_service);
+        boost::asio::ip::tcp::resolver::query query(server, port);
+        boost::asio::connect(command_socket, resolver.resolve(query));
+        return true;
+    } catch (std::exception& e) {
+        std::cerr << "Failed to connect command socket: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+void CommandSender::sendCommand(const std::string& command, int heading) {
+    if (!isConnected()) {
+        std::cerr << "Socket not connected, attempting to reconnect..." << std::endl;
+        if (!connectSocket()) {
+            std::cerr << "Reconnect failed." << std::endl;
+            return;
+        }
+    }
+
     try {
         nlohmann::json j;
         j["command"] = command;
+        if (command == "AUTO") {
+            j["heading"] = heading; // Add heading for AUTO command
+        }
         std::string message = j.dump();
 
         boost::asio::write(command_socket, boost::asio::buffer(message));
     } catch (std::exception& e) {
         std::cerr << "Failed to send command: " << e.what() << std::endl;
-        reconnect();
+        command_socket.close();
     }
+}
+
+bool CommandSender::isConnected() const {
+    return command_socket.is_open();
 }
 
 void CommandSender::reconnect() {
     if (command_socket.is_open()) {
         command_socket.close();
-        std::cout << "Reconnecting to command server" << std::endl;
-        command_socket.connect(command_socket.remote_endpoint());
-        std::cout << "Reconnect successful" << std::endl;
     }
+    connectSocket();
 }

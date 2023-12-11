@@ -10,8 +10,8 @@ class SpheroServer:
     def __init__(self):
         try:
             self.camera = PiCamera()
-            self.camera.resolution = (320, 240)  # Lower resolution for faster processing
-            self.camera.framerate = 15  # Adjust as needed
+            self.camera.resolution = (280, 190)  # Lower resolution for faster processing
+            self.camera.framerate = 10  # Adjust as needed
         except Exception as e:
             print(f"Failed to initialize camera: {e}")
 
@@ -94,31 +94,33 @@ class SpheroServer:
     def handle_client(self, client_socket):
         try:
             while True:
-                try:
-                    message = client_socket.recv(1024).decode('utf-8')
-                    if message:
-                        # Deserialize the JSON message
-                        data = json.loads(message)
-                        command = data["command"]
-                        self.control_robot(command)
-                except Exception as e:
-                    print(f"Error getting message: {e}")
-                    # eksempel på fiks:
-                    # if connection is broken
-                    #   break
+                message = client_socket.recv(1024).decode('utf-8')
+                if message:
+                    print(f"Received message: {message}")  # Added for debugging
+                    # Parse the outer JSON object
+                    outer_data = json.loads(message)
+                    # Extract and parse the nested JSON command
+                    command_data = json.loads(outer_data["command"])
+                    self.control_robot(command_data)  # Pass the parsed command data
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
             client_socket.close()
             print("Client socket closed")
 
-    def control_robot(self, command):
+    def control_robot(self, data):
+        command = data.get("command")
+        heading = data.get("heading", 0)
         base_speed = 90  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for turning
 
         try:
-            print(command)
-            if command == 'F':
+            print(f"Received command: {command}, Heading: {heading}")
+            if command == 'AUTO':
+                adjusted_speed_left = base_speed - int(heading)
+                adjusted_speed_right = base_speed + int(heading)
+                self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+            elif command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
             elif command == 'B':
                 self.rvr.raw_motors(2, base_speed, 2, base_speed)
@@ -133,10 +135,9 @@ class SpheroServer:
             elif command == 'S':
                 self.rvr.raw_motors(0, 0, 0, 0)
             else:
-                print("Unknown command")
+                print(f"Unknown command: {command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
-
     def stop(self):
         self.exit_flag = True
         try:
