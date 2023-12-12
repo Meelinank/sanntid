@@ -92,17 +92,22 @@ class SpheroServer:
 
     def handle_client(self, client_socket):
         try:
-            while True:
+            while not self.exit_flag:
                 message = client_socket.recv(1024).decode('utf-8')
-                if message:
-                    print(f"Received message: {message}")  # Added for debugging
-                    # Parse the outer JSON object
-                    outer_data = json.loads(message)
-                    # Extract and parse the nested JSON command
-                    command_data = json.loads(outer_data["command"])
-                    self.control_robot(command_data)  # Pass the parsed command data
+                if not message:
+                    break  # Exit loop if no message received
 
-                    self.control_robot_light(command_data)
+                print(f"Received message: {message}")  # Debugging log
+                try:
+                    # Attempt to parse the message as nested JSON
+                    outer_data = json.loads(message)
+                    command_data = json.loads(outer_data["command"])
+                except json.JSONDecodeError:
+                    # If it fails, parse it as non-nested JSON
+                    command_data = json.loads(message)
+
+                self.control_robot(command_data)  # Directly pass the parsed command data
+                self.control_robot_light(command_data)
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
