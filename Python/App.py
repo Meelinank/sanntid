@@ -112,13 +112,13 @@ class SpheroServer:
                     # Attempt to parse the message as nested JSON
                     outer_data = json.loads(message)
                     command_data = json.loads(outer_data["command"])
-                    self.command = command_data.get("command")
+                    self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     command_data = json.loads(message)
-                    self.command = command_data.get("command")
+                    self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)                
         except Exception as e:
