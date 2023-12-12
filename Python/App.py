@@ -74,8 +74,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                self.control_robot()  # Directly pass the parsed command data
-                self.control_robot_light()
+                
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -115,12 +114,16 @@ class SpheroServer:
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
+                    self.control_robot()  # Directly pass the parsed command data
+                    self.control_robot_light()
+                    print(f"Received message: {self.command}, Heading: {self.heading}")
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     command_data = json.loads(message)
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
-                    self.speed   = command_data.get("speed", 1)                
+                    self.speed   = command_data.get("speed", 1)   
+                    print(f"Received bad message: {self.command}, Heading: {self.heading}")             
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
