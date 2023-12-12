@@ -123,10 +123,10 @@ class SpheroServer:
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     print(f"Received bad message: {self.command}, Heading: {self.heading}")
-                try:
+                """try:
                     self.status_updater()       
                 except Exception as e:
-                    print(f"Error handling client: {e}")
+                    print(f"Error handling client: {e}")"""
                 sensor_data = {
                 "Battery"       : self.rvrBatteryPercentage, 
                 "IMU"           : self.rvrIMU,
