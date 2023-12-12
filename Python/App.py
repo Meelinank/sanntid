@@ -3,6 +3,7 @@ import threading
 import io
 import time
 import json
+from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
 
@@ -120,6 +121,7 @@ class SpheroServer:
                 adjusted_speed_left = base_speed - int(heading)
                 adjusted_speed_right = base_speed + int(heading)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+                self.rvr.led_control.set_all_leds_color(color=Colors.green)
             elif command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
             elif command == 'B':
@@ -134,8 +136,13 @@ class SpheroServer:
                 self.rvr.raw_motors(2, base_speed + turn_adjustment, 2, base_speed - turn_adjustment)
             elif command == 'S':
                 self.rvr.raw_motors(0, 0, 0, 0)
+                self.rvr.led_control.set_all_leds_color(color=Colors.red)
             else:
                 print(f"Unknown command: {command}")
+                self.rvr.led_control.set_all_leds_color(color=Colors.purple)
+
+            if command != 'AUTO' || command != 'S:
+                self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
         except Exception as e:
             print(f"Error in control_robot: {e}")
     def stop(self):
