@@ -77,7 +77,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                self.status_updater()
+                
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -122,7 +122,8 @@ class SpheroServer:
                     
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
-                    print(f"Received bad message: {self.command}, Heading: {self.heading}")       
+                    print(f"Received bad message: {self.command}, Heading: {self.heading}")
+                self.status_updater()       
                 sensor_data = {
                 "Battery"       : self.rvrBatteryPercentage, 
                 "IMU"           : self.rvrIMU,
