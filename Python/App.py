@@ -114,14 +114,15 @@ class SpheroServer:
     def control_robot(self, data):
         command = data.get("command")
         heading = data.get("heading", 0)
+        speed   = data.get("speed", 0.7)
         base_speed = 90  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for turning
 
         try:
-            print(f"Received command: {command}, Heading: {heading}")
+            print(f"Received command: {command}, Heading: {heading}, Speed: {speed}")
             if command == 'AUTO':
-                adjusted_speed_left = base_speed - int(heading)
-                adjusted_speed_right = base_speed + int(heading)
+                adjusted_speed_left  = int((base_speed - int(heading))*speed)
+                adjusted_speed_right = int((base_speed + int(heading))*speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
@@ -143,6 +144,7 @@ class SpheroServer:
             print(f"Error in control_robot: {e}")
 
     def control_robot_light(self, command):
+        command = data.get("command")
         try:
             if command != self.last_command:
                 if command != 'AUTO' or command != 'S':
