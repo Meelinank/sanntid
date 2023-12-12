@@ -74,7 +74,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                
+                self.status_updater()
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -156,6 +156,16 @@ class SpheroServer:
                 print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
+    def status_updater(self):
+        while not self.exit_flag:
+            try:
+                self.rvrBattery = self.rvr.get_battery_percentage()
+                self.rvrColor = self.rvr.get_all_leds()
+                self.rvrTemps = self.rvr.get_temperature_state()
+                print(f"Battery: {self.rvrBattery}, Color: {self.rvrColor}, Temps: {self.rvrTemps}")
+            except Exception as e:
+                print(f"Error in status_updater: {e}")
+            time.sleep(1)
 
     def control_robot_light(self):
         try:
