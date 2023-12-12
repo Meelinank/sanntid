@@ -143,7 +143,7 @@ class SpheroServer:
 
     def control_robot_light(self, command):
         try:
-            if last != command:
+            if command != last:
                 if command != 'AUTO' or command != 'S':
                     self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
                 elif command == 'S':
