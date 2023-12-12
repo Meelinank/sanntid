@@ -7,6 +7,7 @@ from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
 from sphero_sdk import RvrStreamingServices
+from sphero_sdk import TemperatureSensorsEnum
 class SpheroServer:
     def __init__(self):
         try:
@@ -32,19 +33,18 @@ class SpheroServer:
         self.command_socket.bind(('10.25.45.112', 8001))
         self.command_socket.listen(1)
 
-        self.exit_flag = False
-
-        self.command = None
-        self.heading = None
-        self.speed = None
-        self.rvrBattery = None
-        self.rvrColor = None
-        self.rvrTemps = None
-        self.rvrAccelerometer = None
-        self.rvrIMU = None
-        self.rvrAmbientLight = None
-        self.rvrEncoders = None
-        self.last_command = None
+        self.exit_flag              = False
+        self.command                = None
+        self.heading                = None
+        self.speed                  = None
+        self.rvrBatteryPercentage   = None
+        self.rvrColor               = None
+        self.rvrTemps               = None
+        self.rvrAccelerometer       = None
+        self.rvrIMU                 = None
+        self.rvrAmbientLight        = None
+        self.rvrEncoders            = None
+        self.last_command           = None
 
     def __del__(self):
         self.command_socket.close()
@@ -78,7 +78,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                #self.status_updater()
+                self.status_updater()
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -123,15 +123,15 @@ class SpheroServer:
                     
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
-                    command_data = json.loads(message)
-                    self.command = command_data.get("command", "S")
-                    self.heading = command_data.get("heading", 0)
-                    self.speed   = command_data.get("speed", 1)   
                     print(f"Received bad message: {self.command}, Heading: {self.heading}")       
                 sensor_data = {
-                "Battery"     : self.rvrBattery, 
-                "MotorTemp"   : self.rvrTemps,
-                "LightSensor" : self.rvrColor 
+                "Battery"       : self.rvrBatteryPercentage, 
+                "IMU"           : self.rvrIMU,
+                "LightSensor"   : self.rvrColor,
+                "AmbientLight"  : self.rvrAmbientLight,
+                "Encoders"      : self.rvrEncoders,
+                "Accelerometer" : self.rvrAccelerometer,
+                "Temps"         : self.rvrTemps
                 }
                 sensor_json = json.dumps(sensor_data)
                 print(f"Sending sensor data: {sensor_json}")
@@ -169,18 +169,22 @@ class SpheroServer:
                 print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
-    """def status_updater(self):
+    def status_updater(self):
         while not self.exit_flag:
             try:
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders)
-                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders_handler)
+                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
+                self.rvrTemps =rvr.get_temperature(
+                    id0=TemperatureSensorsEnum.left_motor_temperature.value,
+                    id1=TemperatureSensorsEnum.right_motor_temperature.value
+                )
             except Exception as e:
                 print(f"Error in status_updater: {e}")
-            time.sleep(1)"""
+            time.sleep(1)
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -201,6 +205,21 @@ class SpheroServer:
             self.rvr.close()
         except Exception as e:
             print(f"Error stopping RVR: {e}")
+
+
+    def rvrBatteryPercentage_handler(self,battery_percentage):
+        self.rvrBattery = battery_percentage
+    def rvrAccelerometer_handler(self,accelerometer_data):
+        self.rvrAccelerometer = accelerometer_data
+    def rvrColor_handler(self,color_data):
+        self.rvrColor = color_data
+    def rvrIMU_handler(self,imu_data):
+        self.rvrIMU = imu_data
+    def rvrAmbientLight_handler(self,ambient_light_data):
+        self.rvrAmbientLight = ambient_light_data
+    def rvrEncoders_handler(self,encoder_data):
+        self.rvrEncoders = encoder_data
+    
 
 if __name__ == "__main__":
     server = SpheroServer()
