@@ -145,7 +145,7 @@ class SpheroServer:
             print("Client socket closed")
 
     def control_robot(self):
-        base_speed = 100  # Base speed for forward and backward movement
+        base_speed = 101  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for manual turning
         try:
             if self.command == 'AUTO':
