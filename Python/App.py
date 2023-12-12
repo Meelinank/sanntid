@@ -153,9 +153,9 @@ class SpheroServer:
                 adjusted_speed_right        = int((base_speed + self.heading)*self.speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif self.command == 'F':
-                self.rvr.raw_motors(1, base_speed, 1, base_speed)
+                self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
             elif self.command == 'B':
-                self.rvr.raw_motors(2, base_speed, 2, base_speed)
+                self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
             elif self.command == 'FL':
                 self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
             elif self.command == 'FR':
