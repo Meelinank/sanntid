@@ -109,8 +109,7 @@ class SpheroServer:
                 print(f"Received message: {message}")  # Debugging log
                 try:
                     # Attempt to parse the message as nested JSON
-                    outer_data = json.loads(message)
-                    command_data = json.loads(outer_data["command"])
+                    command_data = json.loads(message)
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
