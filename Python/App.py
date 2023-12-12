@@ -123,7 +123,10 @@ class SpheroServer:
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     print(f"Received bad message: {self.command}, Heading: {self.heading}")
-                self.status_updater()       
+                try:
+                    self.status_updater()       
+                except Exception as e:
+                    print(f"Error handling client: {e}")
                 sensor_data = {
                 "Battery"       : self.rvrBatteryPercentage, 
                 "IMU"           : self.rvrIMU,
@@ -147,8 +150,8 @@ class SpheroServer:
         try:
             print(f"Received command: {self.command}, Heading: {self.heading}")
             if self.command == 'AUTO':
-                adjusted_speed_left = base_speed - int(self.heading)
-                adjusted_speed_right = base_speed + int(self.heading)
+                adjusted_speed_left  = int((base_speed - int(self.heading))*self.speed)
+                adjusted_speed_right = int((base_speed + int(self.heading))*self.speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif self.command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
