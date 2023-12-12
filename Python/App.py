@@ -74,6 +74,8 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
+                self.control_robot()  # Directly pass the parsed command data
+                self.control_robot_light()
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -116,9 +118,9 @@ class SpheroServer:
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     command_data = json.loads(message)
-
-                self.control_robot(command_data)  # Directly pass the parsed command data
-                self.control_robot_light(command_data)
+                    self.command = command_data.get("command")
+                    self.heading = command_data.get("heading", 0)
+                    self.speed   = command_data.get("speed", 1)                
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
@@ -166,8 +168,6 @@ class SpheroServer:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)
         except Exception as e:
             print(f"Error in control_robot_light: {e}")
-
-
 
     def stop(self):
         self.exit_flag = True
