@@ -127,12 +127,12 @@ class SpheroServer:
 
     def control_robot(self):
         base_speed = 90  # Base speed for forward and backward movement
-        turn_adjustment = 70  # Speed adjustment for turning
+        turn_adjustment = 70  # Speed adjustment for manual turning
         try:
             print(f"Received command: {self.command}, Heading: {self.heading}")
             if self.command == 'AUTO':
-                adjusted_speed_left = base_speed - int(heading)
-                adjusted_speed_right = base_speed + int(heading)
+                adjusted_speed_left = base_speed - int(self.heading)
+                adjusted_speed_right = base_speed + int(self.heading)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif self.command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
@@ -164,9 +164,10 @@ class SpheroServer:
                     self.rvr.led_control.set_all_leds_color(color=Colors.green)
                 else:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)
-                self.last_command = self.command
         except Exception as e:
             print(f"Error in control_robot_light: {e}")
+
+
 
     def stop(self):
         self.exit_flag = True
