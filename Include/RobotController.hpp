@@ -15,8 +15,11 @@ public:
     void start();
     void stop();
     void processFrame(const cv::Mat& frame);
+    void setSpeed(float newSpeed);
+
 
 private:
+    float speed;
     FrameReceiver frameReceiver;
     CommandSender& commandSender;
     std::atomic<bool> running;

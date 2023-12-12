@@ -19,7 +19,7 @@ bool CommandSender::connectSocket() {
     }
 }
 
-void CommandSender::sendCommand(const std::string& command, int heading) {
+void CommandSender::sendCommand(const std::string& rawMessage) {
     if (!isConnected()) {
         std::cerr << "Socket not connected, attempting to reconnect..." << std::endl;
         if (!connectSocket()) {
@@ -30,14 +30,7 @@ void CommandSender::sendCommand(const std::string& command, int heading) {
     }
 
     try {
-        nlohmann::json j;
-        j["command"] = command;
-        if (command == "AUTO") {
-            j["heading"] = heading; // Add heading for AUTO command
-        }
-        std::string message = j.dump();
-
-        boost::asio::write(command_socket, boost::asio::buffer(message));
+        boost::asio::write(command_socket, boost::asio::buffer(rawMessage));
     } catch (std::exception& e) {
         std::cerr << "Failed to send command: " << e.what() << std::endl;
         command_socket.close();

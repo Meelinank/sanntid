@@ -8,7 +8,7 @@
 class CommandSender {
 public:
     CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port);
-    void sendCommand(const std::string& command, int heading = 0); // Modified to include heading
+    void sendCommand(const std::string& rawMessage); // Modified to include heading
     bool isConnected() const;
     void reconnect();
 

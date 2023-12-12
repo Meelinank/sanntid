@@ -24,6 +24,10 @@ void RobotController::stop() {
     }
 }
 
+void RobotController::setSpeed(float newSpeed) {
+    speed = newSpeed;
+}
+
 void RobotController::frameProcessingLoop() {
     while (running) {
         cv::Mat frame;
@@ -40,7 +44,7 @@ void RobotController::processFrame(const cv::Mat& frame) {
         cv::Mat hsvFrame;
         cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
         cv::Mat greenMask;
-        cv::inRange(hsvFrame, cv::Scalar(35, 50, 50), cv::Scalar(75, 255, 255), greenMask);
+        cv::inRange(hsvFrame, cv::Scalar(35, 100, 100), cv::Scalar(75, 255, 255), greenMask);
 
         std::vector<std::vector<cv::Point>> contours;
         cv::findContours(greenMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
