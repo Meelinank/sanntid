@@ -7,7 +7,6 @@ from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
 from sphero_sdk import RvrStreamingServices
-from sphero_sdk import TemperatureSensorsEnum
 class SpheroServer:
     def __init__(self):
         try:
@@ -130,8 +129,7 @@ class SpheroServer:
                 "LightSensor"   : self.rvrColor,
                 "AmbientLight"  : self.rvrAmbientLight,
                 "Encoders"      : self.rvrEncoders,
-                "Accelerometer" : self.rvrAccelerometer,
-                "Temps"         : self.rvrTemps
+                "Accelerometer" : self.rvrAccelerometer
                 }
                 sensor_json = json.dumps(sensor_data)
                 print(f"Sending sensor data: {sensor_json}")
@@ -178,10 +176,6 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-                self.rvrTemps =self.rvr.get_temperature(
-                    id0=TemperatureSensorsEnum.left_motor_temperature.value,
-                    id1=TemperatureSensorsEnum.right_motor_temperature.value
-                )
             except Exception as e:
                 print(f"Error in status_updater: {e}")
             time.sleep(1)
