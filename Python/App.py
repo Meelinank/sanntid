@@ -153,6 +153,8 @@ class SpheroServer:
                 else:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)      
             last = command
+        except Exception as e:
+            print(f"Error in control_robot: {e}")            
 
     def stop(self):
         self.exit_flag = True
