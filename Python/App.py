@@ -150,21 +150,21 @@ class SpheroServer:
         try:
             print(f"Received command: {self.command}, Heading: {self.heading}")
             if self.command == 'AUTO':
-                adjusted_speed_left  = int((base_speed - int(self.heading))*self.speed)
-                adjusted_speed_right = int((base_speed + int(self.heading))*self.speed)
+                adjusted_speed_left         = int((base_speed - self.heading)*self.speed)
+                adjusted_speed_right        = int((base_speed + self.heading)*self.speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif self.command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
             elif self.command == 'B':
                 self.rvr.raw_motors(2, base_speed, 2, base_speed)
             elif self.command == 'FL':
-                self.rvr.raw_motors(1, base_speed - turn_adjustment, 1, base_speed + turn_adjustment)
+                self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
             elif self.command == 'FR':
-                self.rvr.raw_motors(1, base_speed + turn_adjustment, 1, base_speed - turn_adjustment)
+                self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
             elif self.command == 'BL':
-                self.rvr.raw_motors(2, base_speed - turn_adjustment, 2, base_speed + turn_adjustment)
+                self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
             elif self.command == 'BR':
-                self.rvr.raw_motors(2, base_speed + turn_adjustment, 2, base_speed - turn_adjustment)
+                self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
             elif self.command == 'S':
                 self.rvr.raw_motors(0, 0, 0, 0)
             else:
