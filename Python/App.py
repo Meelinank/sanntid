@@ -105,6 +105,7 @@ class SpheroServer:
                     command_data = json.loads(outer_data["command"])
                     self.control_robot(command_data)  # Pass the parsed command data
                     self.control_robot_light(command_data)
+                    self.last_command = command_data
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
@@ -114,7 +115,7 @@ class SpheroServer:
     def control_robot(self, data):
         command = data.get("command")
         heading = data.get("heading", 0)
-        speed   = data.get("speed", 0.7)
+        speed   = 1#data.get("speed", 0.7)
         base_speed = 90  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for turning
 
@@ -143,7 +144,7 @@ class SpheroServer:
         except Exception as e:
             print(f"Error in control_robot: {e}")
 
-    def control_robot_light(self, command):
+    def control_robot_light(self, data):
         command = data.get("command")
         try:
             if command != self.last_command:
@@ -154,8 +155,7 @@ class SpheroServer:
                 elif command == 'AUTO':
                     self.rvr.led_control.set_all_leds_color(color=Colors.green)
                 else:
-                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)      
-            self.last_command = command
+                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)        
         except Exception as e:
             print(f"Error in control_robot: {e}")            
 
