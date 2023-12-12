@@ -178,7 +178,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-                self.rvrTemps =rvr.get_temperature(
+                self.rvrTemps =self.rvr.get_temperature(
                     id0=TemperatureSensorsEnum.left_motor_temperature.value,
                     id1=TemperatureSensorsEnum.right_motor_temperature.value
                 )
