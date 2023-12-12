@@ -136,7 +136,7 @@ class SpheroServer:
                 "Accelerometer" : self.rvrAccelerometer
                 }
                 sensor_json = json.dumps(sensor_data)
-                print(f"Sending sensor data: {sensor_json}")
+                #print(f"Sending sensor data: {sensor_json}")
                 client_socket.send(sensor_json.encode())      
         except Exception as e:
             print(f"Error handling client: {e}")
@@ -148,7 +148,6 @@ class SpheroServer:
         base_speed = 90  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for manual turning
         try:
-            print(f"Received command: {self.command}, Heading: {self.heading}")
             if self.command == 'AUTO':
                 adjusted_speed_left         = int((base_speed - self.heading)*self.speed)
                 adjusted_speed_right        = int((base_speed + self.heading)*self.speed)
