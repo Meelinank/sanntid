@@ -175,7 +175,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders_handler)
+                #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders,handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
             except Exception as e:
                 print(f"Error in status_updater: {e}")
