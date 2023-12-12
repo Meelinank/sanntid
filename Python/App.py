@@ -6,7 +6,7 @@ import json
 from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
-
+from sphero_sdk import RvrStreamingServices
 class SpheroServer:
     def __init__(self):
         try:
@@ -40,6 +40,10 @@ class SpheroServer:
         self.rvrBattery = None
         self.rvrColor = None
         self.rvrTemps = None
+        self.rvrAccelerometer = None
+        self.rvrIMU = None
+        self.rvrAmbientLight = None
+        self.rvrEncoders = None
         self.last_command = None
 
     def __del__(self):
@@ -74,7 +78,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                self.status_updater()
+                #self.status_updater()
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -115,7 +119,7 @@ class SpheroServer:
                     self.speed   = command_data.get("speed", 1)
                     self.control_robot()  # Directly pass the parsed command data
                     self.control_robot_light()
-                    print(f"Received message: {self.command}, Heading: {self.heading}")
+                    print(f"Received message: {message})
 
                     
                 except json.JSONDecodeError:
@@ -166,17 +170,18 @@ class SpheroServer:
                 print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
-    def status_updater(self):
+    """def status_updater(self):
         while not self.exit_flag:
             try:
-                self.rvrBattery = self.rvr.get_battery_percentage()
-                self.rvrColor = self.rvr.rvr_command.get_rgbc_sensor_values()
-                self.rvrTemps = self.rvr.get_temperature_state()
-                print(f"Battery: {self.rvrBattery}, Color: {self.rvrColor}, Temps: {self.rvrTemps}")
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders       ,handler=self.rvrEncoders)
+                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage)
             except Exception as e:
                 print(f"Error in status_updater: {e}")
-            time.sleep(1)
-
+            time.sleep(1)"""
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
