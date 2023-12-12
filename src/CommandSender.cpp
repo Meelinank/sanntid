@@ -23,6 +23,7 @@ void CommandSender::sendCommand(const std::string& command, int heading) {
     if (!isConnected()) {
         std::cerr << "Socket not connected, attempting to reconnect..." << std::endl;
         if (!connectSocket()) {
+            reconnect();
             std::cerr << "Reconnect failed." << std::endl;
             return;
         }
@@ -40,6 +41,7 @@ void CommandSender::sendCommand(const std::string& command, int heading) {
     } catch (std::exception& e) {
         std::cerr << "Failed to send command: " << e.what() << std::endl;
         command_socket.close();
+        connectSocket(); // Attempt to reconnect the socket
     }
 }
 

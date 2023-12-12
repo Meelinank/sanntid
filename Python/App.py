@@ -33,7 +33,7 @@ class SpheroServer:
         self.command_socket.listen(1)
 
         self.exit_flag = False
-
+        self.last_command = None
 
     def __del__(self):
         self.command_socket.close()
@@ -59,7 +59,6 @@ class SpheroServer:
                 self.process_video_stream(client_socket)
             except Exception as e:
                 print(f"Video server error: {e}")
-                # Optionally add a short delay before continuing
                 time.sleep(1)
 
     def command_server(self):
@@ -70,7 +69,6 @@ class SpheroServer:
                 self.handle_client(client_socket)
             except Exception as e:
                 print(f"Command server error: {e}")
-                # Optionally add a short delay before continuing
                 time.sleep(1)
 
     def process_video_stream(self, client_socket):
@@ -103,6 +101,8 @@ class SpheroServer:
                     # Extract and parse the nested JSON command
                     command_data = json.loads(outer_data["command"])
                     self.control_robot(command_data)  # Pass the parsed command data
+
+                    self.control_robot_light(command_data)
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
@@ -121,7 +121,6 @@ class SpheroServer:
                 adjusted_speed_left = base_speed - int(heading)
                 adjusted_speed_right = base_speed + int(heading)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-                self.rvr.led_control.set_all_leds_color(color=Colors.green)
             elif command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
             elif command == 'B':
@@ -136,15 +135,27 @@ class SpheroServer:
                 self.rvr.raw_motors(2, base_speed + turn_adjustment, 2, base_speed - turn_adjustment)
             elif command == 'S':
                 self.rvr.raw_motors(0, 0, 0, 0)
-                self.rvr.led_control.set_all_leds_color(color=Colors.red)
             else:
                 print(f"Unknown command: {command}")
-                self.rvr.led_control.set_all_leds_color(color=Colors.purple)
-
-            if command != 'AUTO' || command != 'S:
-                self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
         except Exception as e:
             print(f"Error in control_robot: {e}")
+
+    def control_robot_light(self, data):
+        command = data.get("command")
+        try:
+            if command != self.last_command:
+                if command in ['F', 'B', 'FL', 'FR', 'BL', 'BR']:
+                    self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
+                elif command == 'S':
+                    self.rvr.led_control.set_all_leds_color(color=Colors.red)
+                elif command == 'AUTO':
+                    self.rvr.led_control.set_all_leds_color(color=Colors.green)
+                else:
+                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)
+                self.last_command = command
+        except Exception as e:
+            print(f"Error in control_robot_light: {e}")
+
     def stop(self):
         self.exit_flag = True
         try:
