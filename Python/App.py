@@ -119,7 +119,6 @@ class SpheroServer:
                     self.speed   = command_data.get("speed", 1)
                     self.control_robot()  # Directly pass the parsed command data
                     self.control_robot_light()
-                    print(f"Received message: {message})
 
                     
                 except json.JSONDecodeError:
