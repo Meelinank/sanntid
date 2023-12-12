@@ -33,6 +33,7 @@ class SpheroServer:
         self.command_socket.listen(1)
 
         self.exit_flag = False
+        self.last_command = None
 
 
     def __del__(self):
@@ -143,7 +144,7 @@ class SpheroServer:
 
     def control_robot_light(self, command):
         try:
-            if command != last:
+            if command != self.last_command:
                 if command != 'AUTO' or command != 'S':
                     self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
                 elif command == 'S':
@@ -152,7 +153,7 @@ class SpheroServer:
                     self.rvr.led_control.set_all_leds_color(color=Colors.green)
                 else:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)      
-            last = command
+            self.last_command = command
         except Exception as e:
             print(f"Error in control_robot: {e}")            
 
