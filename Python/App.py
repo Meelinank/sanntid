@@ -116,13 +116,23 @@ class SpheroServer:
                     self.control_robot()  # Directly pass the parsed command data
                     self.control_robot_light()
                     print(f"Received message: {self.command}, Heading: {self.heading}")
+
+                    
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     command_data = json.loads(message)
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)   
-                    print(f"Received bad message: {self.command}, Heading: {self.heading}")             
+                    print(f"Received bad message: {self.command}, Heading: {self.heading}")       
+                sensor_data = {
+                "Battery"     : self.rvrBattery, 
+                "MotorTemp"   : self.rvrTemps,
+                "LightSensor" : self.rvrColor 
+                }
+                sensor_json = json.dumps(sensor_data)
+                print(f"Sending sensor data: {sensor_json}")
+                client.send(sensor_json.encode())      
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
@@ -160,7 +170,7 @@ class SpheroServer:
         while not self.exit_flag:
             try:
                 self.rvrBattery = self.rvr.get_battery_percentage()
-                self.rvrColor = self.rvr.get_all_leds()
+                self.rvrColor = self.rvr.rvr_command.get_rgbc_sensor_values()
                 self.rvrTemps = self.rvr.get_temperature_state()
                 print(f"Battery: {self.rvrBattery}, Color: {self.rvrColor}, Temps: {self.rvrTemps}")
             except Exception as e:
