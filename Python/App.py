@@ -132,7 +132,7 @@ class SpheroServer:
                 }
                 sensor_json = json.dumps(sensor_data)
                 print(f"Sending sensor data: {sensor_json}")
-                client.send(sensor_json.encode())      
+                client_socket.send(sensor_json.encode())      
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
