@@ -33,6 +33,13 @@ class SpheroServer:
         self.command_socket.listen(1)
 
         self.exit_flag = False
+
+        self.command = None
+        self.heading = None
+        self.speed = None
+        self.rvrBattery = None
+        self.rvrColor = None
+        self.rvrTemps = None
         self.last_command = None
 
     def __del__(self):
@@ -67,6 +74,7 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
+                self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)
@@ -102,6 +110,9 @@ class SpheroServer:
                     # Attempt to parse the message as nested JSON
                     outer_data = json.loads(message)
                     command_data = json.loads(outer_data["command"])
+                    self.command = command_data.get("command")
+                    self.heading = command_data.get("heading", 0)
+                    self.speed   = command_data.get("speed", 1)
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     command_data = json.loads(message)
@@ -114,50 +125,46 @@ class SpheroServer:
             client_socket.close()
             print("Client socket closed")
 
-    def control_robot(self, data):
-        command = data.get("command")
-        heading = data.get("heading", 0)
+    def control_robot(self):
         base_speed = 90  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for turning
-
         try:
-            print(f"Received command: {command}, Heading: {heading}")
-            if command == 'AUTO':
+            print(f"Received command: {self.command}, Heading: {self.heading}")
+            if self.command == 'AUTO':
                 adjusted_speed_left = base_speed - int(heading)
                 adjusted_speed_right = base_speed + int(heading)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-            elif command == 'F':
+            elif self.command == 'F':
                 self.rvr.raw_motors(1, base_speed, 1, base_speed)
-            elif command == 'B':
+            elif self.command == 'B':
                 self.rvr.raw_motors(2, base_speed, 2, base_speed)
-            elif command == 'FL':
+            elif self.command == 'FL':
                 self.rvr.raw_motors(1, base_speed - turn_adjustment, 1, base_speed + turn_adjustment)
-            elif command == 'FR':
+            elif self.command == 'FR':
                 self.rvr.raw_motors(1, base_speed + turn_adjustment, 1, base_speed - turn_adjustment)
-            elif command == 'BL':
+            elif self.command == 'BL':
                 self.rvr.raw_motors(2, base_speed - turn_adjustment, 2, base_speed + turn_adjustment)
-            elif command == 'BR':
+            elif self.command == 'BR':
                 self.rvr.raw_motors(2, base_speed + turn_adjustment, 2, base_speed - turn_adjustment)
-            elif command == 'S':
+            elif self.command == 'S':
                 self.rvr.raw_motors(0, 0, 0, 0)
             else:
-                print(f"Unknown command: {command}")
+                print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
 
-    def control_robot_light(self, data):
-        command = data.get("command")
+    def control_robot_light(self):
         try:
-            if command != self.last_command:
-                if command in ['F', 'B', 'FL', 'FR', 'BL', 'BR']:
+            if self.command != self.last_command:
+                if self.command in ['F', 'B', 'FL', 'FR', 'BL', 'BR']:
                     self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
-                elif command == 'S':
+                elif self.command == 'S':
                     self.rvr.led_control.set_all_leds_color(color=Colors.red)
-                elif command == 'AUTO':
+                elif self.command == 'AUTO':
                     self.rvr.led_control.set_all_leds_color(color=Colors.green)
                 else:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)
-                self.last_command = command
+                self.last_command = self.command
         except Exception as e:
             print(f"Error in control_robot_light: {e}")
 
