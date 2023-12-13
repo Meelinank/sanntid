@@ -194,7 +194,8 @@ class SpheroServer:
                         "yaw":          self.rvrYaw,
                         "roll":         self.rvrRoll,
                         "ColorSensor":  self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight
+                        "AmbientLight": self.rvrAmbientLight,
+                        "Battery":      self.rvrBatteryPercentage
                         # include any other sensor data here
                     }
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
