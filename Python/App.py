@@ -58,8 +58,13 @@ class SpheroServer:
         command_thread = threading.Thread(target=self.command_server)
         command_thread.start()
 
+        print("Starting sensors...")
+        sensor_thread = threading.Thread(target=self.status_updater)
+        sensor_thread.start()
+
         video_thread.join()
         command_thread.join()
+        sensor_thread.join()
 
     def video_server(self):
         while not self.exit_flag:
@@ -122,10 +127,7 @@ class SpheroServer:
                     
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
-                    print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
-                
-                self.status_updater()       
-                
+                    print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
                 sensor_data = {
                 "Battery"       : self.rvrBatteryPercentage, 
                 "IMU"           : self.rvrIMU,
@@ -172,15 +174,22 @@ class SpheroServer:
     def status_updater(self):
         while not self.exit_flag:
             try:
+                rvr.enable_color_detection(is_enabled=True)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders,handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
+                rvr.sensor_control.start(interval=100)
+
+                while True:
+                    time.sleep(1)
             except Exception as e:
                 print(f"Error in status_updater: {e}")
                 time.sleep(1)
+
+                
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
