@@ -182,7 +182,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
-                self.rvr.on_battery_voltage_state_change_notify(handler=rvrBatteryPercentage_handler)
+                self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=100)
 
                 while not self.exit_flag:
