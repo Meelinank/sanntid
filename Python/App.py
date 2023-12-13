@@ -69,10 +69,11 @@ class SpheroServer:
         print("Starting sensor  server...")
         """sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
-"""
+        """
         #video_thread.join()
         command_thread.join()
         #sensor_thread.join()
+
     def video_server(self):
         while not self.exit_flag:
             try:
@@ -96,7 +97,7 @@ class SpheroServer:
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
-"""    def sensor_server(self):    
+        """    def sensor_server(self):    
         while not self.exit_flag:
             try:
                 client_socket, addr = self.sensor_socket.accept()
