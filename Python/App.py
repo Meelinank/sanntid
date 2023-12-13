@@ -156,6 +156,9 @@ class SpheroServer:
             try:
                 print(f"Executing command: {self.command}")
                 self.control_robot_light()
+                if self.last_command == 'AUTO' and self.command != 'AUTO':
+                    self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
+                    continue
                 if self.command == 'AUTO':
                     adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
                     adjusted_speed_right = int((base_speed + self.heading)*self.speed)
