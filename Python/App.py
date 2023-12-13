@@ -69,10 +69,15 @@ class SpheroServer:
         print("Starting sensor  server...")
         sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
+
+        print("Starting robot control...")
+        robot_thread = threading.Thread(target=self.control_robot)
+        robot_thread.start()
         
         #video_thread.join()
         command_thread.join()
         sensor_thread.join()
+        robot_thread.join()
 
     def video_server(self):
         while not self.exit_flag:
@@ -137,8 +142,6 @@ class SpheroServer:
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
-                    self.control_robot()
-                    self.control_robot_light()
                 except json.JSONDecodeError:
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
         except Exception as e:
@@ -151,6 +154,7 @@ class SpheroServer:
         turn_adjustment = 70
         try:
             print(f"Executing command: {self.command}")
+            self.control_robot_light()
             if self.command == 'AUTO':
                 adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
                 adjusted_speed_right = int((base_speed + self.heading)*self.speed)
@@ -183,7 +187,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
                 self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
-                self.rvr.sensor_control.start(interval=100)
+                self.rvr.sensor_control.start(interval=1000)
 
                 while not self.exit_flag:
                     sensor_data = {
@@ -241,8 +245,7 @@ class SpheroServer:
     def rvrAmbientLight_handler(self,ambient_light_data):
         self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
-        self.rvrEncoders = encoder_data 
-        
+        self.rvrEncoders = encoder_data         
     def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
