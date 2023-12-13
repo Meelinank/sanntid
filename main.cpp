@@ -17,12 +17,13 @@ int main() {
 
     float speed = 0;
     bool manualMode = true;
+    int keyTimer = 0;
 
-    frameReceiver.startReceiving(); // Start receiving frames
-    robotController.start();  // Start robot controller
-    cvui::init(WINDOW_NAME); // Initialize cvui
-    cv::Mat frame = cv::Mat(650, 1000, CV_8UC3); // Create a frame for the window
-    cv::Mat videoFrame; // Create a frame for the video feed
+    frameReceiver.startReceiving();
+    robotController.start();
+    cvui::init(WINDOW_NAME);
+    cv::Mat frame = cv::Mat(650, 1000, CV_8UC3);
+    cv::Mat videoFrame;
 
     // Variable to store the last received sensor data
     nlohmann::json lastSensorData;
@@ -32,27 +33,32 @@ int main() {
 
         frameReceiver.getNextFrame(videoFrame);
 
-        if (not videoFrame.empty()) { // If the frame is not empty, display it
+        if (!videoFrame.empty()) {
             cvui::image(frame, 50, 50, videoFrame);
-            cvui::text(frame, 50, 10, "Camera:", 0.8); // Video feed
+            cvui::text(frame, 50, 10, "Camera Feed", 0.8);
         }
 
         cvui::trackbar(frame, 50, 540, 360, &speed, (float)0.5, (float)1.125);
 
         int key = cv::waitKey(20); // Check for key presses
 
-        // Window displaying driving mode selection
-        cvui::window(frame, 50, 400, 180, 120, "Select driving mode"); // Window for driving mode selection
+        cvui::window(frame, 50, 400, 180, 120, "Driving Mode");
 
-        if (cvui::button(frame, 80, 440, "Manual")) { // Button for manual mode
+        if (cvui::button(frame, 80, 440, "Manual")) {
             manualMode = true;
+            nlohmann::json j;
+            j["command"] = "MANUAL";
+            // Include any other relevant data
+            std::string jsonString = j.dump();
+            commandSender.sendCommand(jsonString);
         }
-        if (cvui::button(frame, 80, 480, "Automatic")) { // Button for automatic mode
+
+        if (cvui::button(frame, 80, 480, "Automatic")) {
             manualMode = false;
         }
 
         // Sensor Data Display Section
-        cvui::window(frame, 440, 50, 350, 250, "Sensor Data from Sphero RVR");
+        cvui::window(frame, 450, 10, 300, 200, "Sensor Data from Sphero RVR");
         if (sensorDataReceiver.isConnected()) {
             try {
                 nlohmann::json sensorData = sensorDataReceiver.receiveSensorData();
@@ -65,7 +71,7 @@ int main() {
         }
 
         // Display the last received (or stored) sensor data
-        int yPos = 90; // Starting Y position for displaying data
+        int yPos = 40; // Starting Y position for displaying data
         for (auto& [key, value] : lastSensorData.items()) {
             std::string text = key + ": " + value.dump();
             cvui::text(frame, 460, yPos, text, 0.4);
@@ -73,22 +79,27 @@ int main() {
         }
 
         if (manualMode) {
+            keyTimer++;
             cvui::text(frame, 300, 420, "Manual Control Active", 0.6);
             nlohmann::json j;
             if (key == 119) {  // 'w' key for Forward
-                j["command"] = "F";
+                j["direction"] = "F";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 97) {  // 'a' key for Left
-                j["command"] = "FL";
+                j["direction"] = "FL";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 100) {  // 'd' key for Right
-                j["command"] = "FR";
+                j["direction"] = "FR";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 115) {  // 's' key for Backward
-                j["command"] = "B";
+                j["direction"] = "B";
                 j["speed"] = speed;
-            } else if (key == 32) {  // Space bar for Stop
-                j["command"] = "S";
+                keyTimer = 0;
+            }  else if (keyTimer > 10) {  // Space bar for Stop
+                j["direction"] = "S";
             }
 
             if (!j.empty()) {
@@ -98,29 +109,13 @@ int main() {
             }
 
         } else {
+            keyTimer = 0;
             cvui::text(frame, 300, 420, "Automatic Control Active", 0.6);
             if (!videoFrame.empty()) {
                 robotController.processFrame(videoFrame);
                 robotController.setSpeed(speed);
             }
-            // text displaying when in automatic mode
-            cvui::text(frame, 300, 420, "Automatic Control Active");
         }
-
-        //cvui::checkbox(frame, 50, 250, "Autonomous Mode", &manualMode);
-
-        cvui::text(frame, 440, 10, "Sensor Data:", 0.8); // Data from Sphero
-
-        cvui::text(frame, 280, 400, "Current Active Mode:", 0.6); // Active drive mode
-
-        // Display manual control buttons
-        cvui::text(frame, 50, 260, "Manual Control:");
-        cvui::text(frame, 50, 280, "W - Forward");
-        cvui::text(frame, 50, 300, "A - Left");
-        cvui::text(frame, 50, 320, "S - Backward");
-        cvui::text(frame, 50, 340, "D - Right");
-        cvui::text(frame, 50, 360, "Space - Stop");
-        cvui::text(frame, 350, 360, "ESC - Quit");
 
         cvui::update();
         cv::imshow(WINDOW_NAME, frame);
@@ -135,4 +130,3 @@ int main() {
 
     return 0;
 }
-
