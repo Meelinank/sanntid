@@ -8,7 +8,7 @@
 class CommandSender {
 public:
     CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port);
-    void sendCommand(const std::string& rawMessage); // Modified to include heading
+    void sendCommand(const std::string& rawMessage);
     bool isConnected() const;
     void reconnect();
 
@@ -17,7 +17,7 @@ private:
     std::string server;
     std::string port;
     boost::asio::ip::tcp::socket command_socket;
-    bool connectSocket(); // New function to handle connection
+    bool connectSocket();
 };
 
 #endif //SANNTID_COMMANDSENDER_HPP
