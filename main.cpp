@@ -15,8 +15,6 @@ int main() {
     SensorDataReceiver sensorDataReceiver(io_service, "10.25.45.112", "8002");
     RobotController robotController("10.25.45.112", "8000", "10.25.45.112", "8001", io_service, commandSender);
 
-    sensorDataReceiver.receiveSensorData();
-
     float speed = 0;
     bool manualMode = true;
 
@@ -25,6 +23,9 @@ int main() {
     cvui::init(WINDOW_NAME);
     cv::Mat frame = cv::Mat(650, 1000, CV_8UC3);
     cv::Mat videoFrame;
+
+    // Variable to store the last received sensor data
+    nlohmann::json lastSensorData;
 
     while (true) {
         frame = cv::Scalar(49, 52, 49);  // Clear the frame
@@ -53,20 +54,20 @@ int main() {
         if (sensorDataReceiver.isConnected()) {
             try {
                 nlohmann::json sensorData = sensorDataReceiver.receiveSensorData();
-                std::cout << "Sensor data received: " << sensorData.dump() << std::endl;
-
-                int yPos = 40; // Starting Y position for displaying data
-                for (auto& [key, value] : sensorData.items()) {
-                    std::string text = key + ": " + value.dump();
-                    cvui::text(frame, 460, yPos, text, 0.4);
-                    yPos += 20; // Increment Y position for next item
+                if (!sensorData.empty()) {
+                    lastSensorData = sensorData; // Update the last received sensor data
                 }
             } catch (std::exception& e) {
                 std::cerr << "Error reading sensor data: " << e.what() << std::endl;
-                cvui::text(frame, 460, 40, "Error reading sensor data.", 0.4);
             }
-        } else {
-            cvui::text(frame, 460, 40, "Sensor data not connected.", 0.4);
+        }
+
+        // Display the last received (or stored) sensor data
+        int yPos = 40; // Starting Y position for displaying data
+        for (auto& [key, value] : lastSensorData.items()) {
+            std::string text = key + ": " + value.dump();
+            cvui::text(frame, 460, yPos, text, 0.4);
+            yPos += 20; // Increment Y position for next item
         }
 
         if (manualMode) {
@@ -115,4 +116,3 @@ int main() {
 
     return 0;
 }
-
