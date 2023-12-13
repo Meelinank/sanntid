@@ -221,16 +221,16 @@ class SpheroServer:
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
-        accel = command_data.get("Accelerometer")
+        accel = imu_data.get("Accelerometer")
         self.rvrX = accel.get("X")
         self.rvrY = accel.get("Y")
         self.rvrZ = accel.get("Z")
-        gyro = command_data.get("IMU")
+        gyro = imu_data.get("IMU")
         self.rvrPitch = gyro.get("Pitch")
         self.rvrYaw   = gyro.get("Yaw")
         self.rvrRoll  = gyro.get("Roll")
     def rvrAmbientLight_handler(self,ambient_light_data):
-        ambi = command_data.get("AmbientLight")
+        ambi = ambient_light_data.get("AmbientLight")
         lightLvl = ambi.get("Light")
         self.rvrAmbientLight = lightLvl
     def rvrEncoders_handler(self,encoder_data):
