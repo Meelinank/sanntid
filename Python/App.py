@@ -59,7 +59,7 @@ class SpheroServer:
         command_thread.start()
 
         print("Starting sensors...")
-        sensor_thread = threading.Thread(target=self.status_updater)
+        sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
 
         video_thread.join()
@@ -171,17 +171,18 @@ class SpheroServer:
                 print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
-    def status_updater(self):
+    
+    def sensor_server(self):
         while not self.exit_flag:
             try:
-                rvr.enable_color_detection(is_enabled=True)
+                self.rvr.enable_color_detection(is_enabled=True)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders,handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-                rvr.sensor_control.start(interval=100)
+                self.rvr.sensor_control.start(interval=100)
 
                 while True:
                     time.sleep(1)
@@ -189,7 +190,7 @@ class SpheroServer:
                 print(f"Error in status_updater: {e}")
                 time.sleep(1)
 
-                
+
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -211,7 +212,6 @@ class SpheroServer:
         except Exception as e:
             print(f"Error stopping RVR: {e}")
 
-
     def rvrBatteryPercentage_handler(self,battery_percentage):
         self.rvrBattery = battery_percentage
     def rvrAccelerometer_handler(self,accelerometer_data):
@@ -225,7 +225,6 @@ class SpheroServer:
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data
     
-
 if __name__ == "__main__":
     server = SpheroServer()
     try:
