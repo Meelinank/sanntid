@@ -67,9 +67,9 @@ class SpheroServer:
         command_thread.start()
 
         print("Starting sensor  server...")
-        """sensor_thread = threading.Thread(target=self.sensor_server)
+        sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
-        """
+        
         #video_thread.join()
         command_thread.join()
         #sensor_thread.join()
@@ -97,7 +97,7 @@ class SpheroServer:
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
-        """    def sensor_server(self):    
+    def sensor_server(self):    
         while not self.exit_flag:
             try:
                 client_socket, addr = self.sensor_socket.accept()
@@ -105,7 +105,7 @@ class SpheroServer:
                 self.sensor_updater(client_socket)
             except Exception as e:
                 print(f"Sensor server error: {e}")
-                time.sleep(1)"""
+                time.sleep(1)
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
         try:
@@ -136,6 +136,7 @@ class SpheroServer:
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
+                    print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                     self.control_robot()
                     self.control_robot_light()
                 except json.JSONDecodeError:
@@ -149,6 +150,7 @@ class SpheroServer:
         base_speed      = 101
         turn_adjustment = 70
         try:
+            print(f"Executing command: {self.command}")
             if self.command == 'AUTO':
                 adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
                 adjusted_speed_right = int((base_speed + self.heading)*self.speed)
