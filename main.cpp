@@ -16,7 +16,6 @@ int main() {
     RobotController robotController("10.25.45.112", "8000", "10.25.45.112", "8001", io_service, commandSender);
 
     sensorDataReceiver.receiveSensorData();
-    std::cout << "Sensor data received: " << sensorDataReceiver.receiveSensorData() << std::endl;
 
     float speed = 0;
     bool manualMode = true;
