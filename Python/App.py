@@ -67,9 +67,9 @@ class SpheroServer:
         command_thread.start()
 
         print("Starting sensor  server...")
-        sensor_thread = threading.Thread(target=self.sensor_server)
+        """sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
-
+"""
         #video_thread.join()
         command_thread.join()
         #sensor_thread.join()
@@ -89,10 +89,14 @@ class SpheroServer:
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
                 self.last_command = self.command
+
+                client_socket, addr = self.sensor_socket.accept()
+                print("Sensor client connected:", addr)
+                self.sensor_updater(client_socket)
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
-    def sensor_server(self):    
+"""    def sensor_server(self):    
         while not self.exit_flag:
             try:
                 client_socket, addr = self.sensor_socket.accept()
@@ -100,7 +104,7 @@ class SpheroServer:
                 self.sensor_updater(client_socket)
             except Exception as e:
                 print(f"Sensor server error: {e}")
-                time.sleep(1)
+                time.sleep(1)"""
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
         try:
@@ -237,7 +241,7 @@ class SpheroServer:
             element  = keys[0]
             if element:
                 value = dictionary.get(element)
-                return value if len(keys) == 1 else get_nested(value, *keys[1:])
+                return value if len(keys) == 1 else self.get_nested(value, *keys[1:])
         return None
 if __name__ == "__main__":
     server = SpheroServer()
