@@ -32,6 +32,11 @@ class SpheroServer:
         self.command_socket.bind(('10.25.45.112', 8001))
         self.command_socket.listen(1)
 
+        # Command handling socket
+        self.sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sensor_socket.bind(('10.25.45.112', 8002))
+        self.sensor_socket.listen(1)
+
         self.exit_flag              = False
         self.command                = None
         self.heading                = None
@@ -47,6 +52,7 @@ class SpheroServer:
     def __del__(self):
         self.command_socket.close()
         self.video_socket.close()
+        self.sensor_socket.close()
 
     def start_server(self):
         print("Starting video   server...")
@@ -89,7 +95,7 @@ class SpheroServer:
     def sensor_server(self):    
         while not self.exit_flag:
             try:
-                client_socket, addr = self.video_socket.accept()
+                client_socket, addr = self.sensor_socket.accept()
                 print("Sensor client connected:", addr)
                 self.sensor_updater(client_socket)
             except Exception as e:
