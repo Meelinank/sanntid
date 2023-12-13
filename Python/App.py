@@ -190,7 +190,7 @@ class SpheroServer:
                         # include any other sensor data here
                     }
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                    print(f"Sending sensor data:"{sensor_json})
+                    print(f"Sending sensor data:{sensor_json}")
                     client_socket.sendall(sensor_json.encode())
                     #time.sleep(1)  # Adjust the frequency of updates as needed
 
