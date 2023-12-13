@@ -170,32 +170,34 @@ class SpheroServer:
         while not self.exit_flag:
             try:
                 self.rvr.enable_color_detection(is_enabled=True)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
-                #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders,handler=self.rvrEncoders_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
+                # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=100)
 
-                while True:
-                    time.sleep(1)
+                while not self.exit_flag:
+                    sensor_data = {
+                        "x": self.rvrX,
+                        "y": self.rvrY,
+                        "z": self.rvrZ,
+                        "pitch": self.rvrPitch,
+                        "yaw": self.rvrYaw,
+                        "roll": self.rvrRoll,
+                        "LightSensor": self.rvrColor,
+                        "AmbientLight": self.rvrAmbientLight,
+                        # include any other sensor data here
+                    }
+                    sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
+                    print("Sending sensor data:")
+                    print(sensor_json)
+                    client_socket.sendall(sensor_json.encode())
+                    time.sleep(1)  # Adjust the frequency of updates as needed
+
             except Exception as e:
-                print(f"Error in status_updater: {e}")
+                print(f"Error in sensor_updater: {e}")
                 time.sleep(1)
-            sensor_data = {
-                "x"             : self.rvrX,
-                "y"             : self.rvrY,
-                "z"             : self.rvrZ,
-                "pitch"         : self.rvrPitch,
-                "yaw"           : self.rvrYaw,
-                "roll"          : self.rvrRoll,
-                "LightSensor"   : self.rvrColor,
-                "AmbientLight"  : self.rvrAmbientLight
-            }
-            sensor_json = json.dumps(sensor_data)
-            print("Sending sensor data:")
-            print(sensor_json)
-            client_socket.send(sensor_json.encode())      
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -221,20 +223,22 @@ class SpheroServer:
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
-        accel = imu_data.get("Accelerometer")
-        self.rvrX = accel.get("X")
-        self.rvrY = accel.get("Y")
-        self.rvrZ = accel.get("Z")
-        gyro = imu_data.get("IMU")
-        self.rvrPitch = gyro.get("Pitch")
-        self.rvrYaw   = gyro.get("Yaw")
-        self.rvrRoll  = gyro.get("Roll")
+        self.rvrX     = get_nested(imu_data, "Accelerometer", "X")
+        self.rvrY     = get_nested(imu_data, "Accelerometer", "Y")
+        self.rvrZ     = get_nested(imu_data, "Accelerometer", "Z")
+        self.rvrPitch = get_nested(imu_data, "IMU"          , "Pitch")
+        self.rvrYaw   = get_nested(imu_data, "IMU"          , "Yaw"  )
+        self.rvrRoll  = get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        ambi = ambient_light_data.get("AmbientLight")
-        lightLvl = ambi.get("Light")
-        self.rvrAmbientLight = lightLvl
+        self.rvrAmbientLight = get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
+    def get_nested(data, *args):
+        if args and data:
+            element  = args[0]
+            if element:
+                value = data.get(element)
+                return value if len(args) == 1 else get_nested(value, *args[1:])
 if __name__ == "__main__":
     server = SpheroServer()
     try:
