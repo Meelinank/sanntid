@@ -69,10 +69,11 @@ class SpheroServer:
         print("Starting sensor  server...")
         sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
-
-        video_thread.join()
+        
+        #video_thread.join()
         command_thread.join()
         sensor_thread.join()
+
     def video_server(self):
         while not self.exit_flag:
             try:
@@ -89,6 +90,10 @@ class SpheroServer:
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
                 self.last_command = self.command
+
+                client_socket, addr = self.sensor_socket.accept()
+                print("Sensor client connected:", addr)
+                self.sensor_updater(client_socket)
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
@@ -131,6 +136,7 @@ class SpheroServer:
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
+                    print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                     self.control_robot()
                     self.control_robot_light()
                 except json.JSONDecodeError:
@@ -144,6 +150,7 @@ class SpheroServer:
         base_speed      = 101
         turn_adjustment = 70
         try:
+            print(f"Executing command: {self.command}")
             if self.command == 'AUTO':
                 adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
                 adjusted_speed_right = int((base_speed + self.heading)*self.speed)
@@ -186,14 +193,13 @@ class SpheroServer:
                         "yaw": self.rvrYaw,
                         "roll": self.rvrRoll,
                         "LightSensor": self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight,
+                        "AmbientLight": self.rvrAmbientLight
                         # include any other sensor data here
                     }
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                    print("Sending sensor data:")
-                    print(sensor_json)
+                    print(f"Sending sensor data:{sensor_json}")
                     client_socket.sendall(sensor_json.encode())
-                    time.sleep(1)  # Adjust the frequency of updates as needed
+                    #time.sleep(1)  # Adjust the frequency of updates as needed
 
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
@@ -223,22 +229,22 @@ class SpheroServer:
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
-        self.rvrX     = get_nested(imu_data, "Accelerometer", "X")
-        self.rvrY     = get_nested(imu_data, "Accelerometer", "Y")
-        self.rvrZ     = get_nested(imu_data, "Accelerometer", "Z")
-        self.rvrPitch = get_nested(imu_data, "IMU"          , "Pitch")
-        self.rvrYaw   = get_nested(imu_data, "IMU"          , "Yaw"  )
-        self.rvrRoll  = get_nested(imu_data, "IMU"          , "Roll" )
+        self.rvrX     = self.get_nested(imu_data, "Accelerometer", "X")
+        self.rvrY     = self.get_nested(imu_data, "Accelerometer", "Y")
+        self.rvrZ     = self.get_nested(imu_data, "Accelerometer", "Z")
+        self.rvrPitch = self.get_nested(imu_data, "IMU"          , "Pitch")
+        self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
+        self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = get_nested(ambient_light_data, "AmbientLight", "Light")
+        self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
-    def get_nested(dictionary, *keys):
+    def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
             if element:
                 value = dictionary.get(element)
-                return value if len(keys) == 1 else get_nested(value, *keys[1:])
+                return value if len(keys) == 1 else self.get_nested(value, *keys[1:])
         return None
 if __name__ == "__main__":
     server = SpheroServer()
