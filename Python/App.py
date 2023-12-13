@@ -122,11 +122,10 @@ class SpheroServer:
                     
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
-                    print(f"Received bad message: {self.command}, Heading: {self.heading}")
-                """try:
-                    self.status_updater()       
-                except Exception as e:
-                    print(f"Error handling client: {e}")"""
+                    print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
+                
+                self.status_updater()       
+                
                 sensor_data = {
                 "Battery"       : self.rvrBatteryPercentage, 
                 "IMU"           : self.rvrIMU,
@@ -136,7 +135,7 @@ class SpheroServer:
                 "Accelerometer" : self.rvrAccelerometer
                 }
                 sensor_json = json.dumps(sensor_data)
-                #print(f"Sending sensor data: {sensor_json}")
+                print(f"Sending sensor data: {sensor_json}")
                 client_socket.send(sensor_json.encode())      
         except Exception as e:
             print(f"Error handling client: {e}")
@@ -181,7 +180,7 @@ class SpheroServer:
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
             except Exception as e:
                 print(f"Error in status_updater: {e}")
-            time.sleep(1)
+                time.sleep(1)
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -224,3 +223,4 @@ if __name__ == "__main__":
         server.start_server()
     finally:
         server.stop()
+2
