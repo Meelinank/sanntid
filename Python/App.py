@@ -150,33 +150,36 @@ class SpheroServer:
             client_socket.close()
             print("Client socket closed")
     def control_robot(self):
-        base_speed      = 101
-        turn_adjustment = 70
-        try:
-            print(f"Executing command: {self.command}")
-            self.control_robot_light()
-            if self.command == 'AUTO':
-                adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
-                adjusted_speed_right = int((base_speed + self.heading)*self.speed)
-                self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-            elif self.command == 'F':
-                self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
-            elif self.command == 'B':
-                self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
-            elif self.command == 'FL':
-                self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
-            elif self.command == 'FR':
-                self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
-            elif self.command == 'BL':
-                self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
-            elif self.command == 'BR':
-                self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
-            elif self.command == 'S':
-                self.rvr.raw_motors(0, 0, 0, 0)
-            else:
-                print(f"Unknown command: {self.command}")
-        except Exception as e:
-            print(f"Error in control_robot: {e}")  
+        while not self.exit_flag:
+            base_speed      = 101
+            turn_adjustment = 70
+            try:
+                print(f"Executing command: {self.command}")
+                self.control_robot_light()
+                if self.command == 'AUTO':
+                    adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
+                    adjusted_speed_right = int((base_speed + self.heading)*self.speed)
+                    self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+                elif self.command == 'F':
+                    self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
+                elif self.command == 'B':
+                    self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
+                elif self.command == 'FL':
+                    self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
+                elif self.command == 'FR':
+                    self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
+                elif self.command == 'BL':
+                    self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
+                elif self.command == 'BR':
+                    self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
+                elif self.command == 'S':
+                    self.rvr.raw_motors(0, 0, 0, 0)
+                else:
+                    print(f"Unknown command: {self.command}")
+            except Exception as e:
+                print(f"Error in control_robot: {e}")
+                #time.sleep(1)
+          
     def sensor_updater(self, client_socket):
         while not self.exit_flag:
             try:
