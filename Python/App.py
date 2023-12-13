@@ -44,9 +44,14 @@ class SpheroServer:
         self.rvrBatteryPercentage   = None
         self.rvrColor               = None
         self.rvrTemps               = None
-        self.rvrIMU                 = None
         self.rvrAmbientLight        = None
         self.rvrEncoders            = None
+        self.rvrX                   = None
+        self.rvrY                   = None
+        self.rvrZ                   = None
+        self.rvrPitch               = None
+        self.rvrYaw                 = None
+        self.rvrRoll                = None
         self.last_command           = None
     def __del__(self):
         self.command_socket.close()
@@ -119,19 +124,16 @@ class SpheroServer:
             while not self.exit_flag:
                 message = client_socket.recv(1024).decode('utf-8')
                 if not message:
-                    break  # Exit loop if no message received
-
-                print(f"Received message: {message}")  # Debugging log
+                    break
+                print(f"Received message: {message}")
                 try:
-                    # Attempt to parse the message as nested JSON
                     command_data = json.loads(message)
                     self.command = command_data.get("command", "S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
-                    self.control_robot()  # Directly pass the parsed command data
+                    self.control_robot()
                     self.control_robot_light()
                 except json.JSONDecodeError:
-                    # If it fails, parse it as non-nested JSON
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
         except Exception as e:
             print(f"Error handling client: {e}")
@@ -139,12 +141,12 @@ class SpheroServer:
             client_socket.close()
             print("Client socket closed")
     def control_robot(self):
-        base_speed = 101  # Base speed for forward and backward movement
-        turn_adjustment = 70  # Speed adjustment for manual turning
+        base_speed      = 101
+        turn_adjustment = 70
         try:
             if self.command == 'AUTO':
-                adjusted_speed_left         = int((base_speed - self.heading)*self.speed)
-                adjusted_speed_right        = int((base_speed + self.heading)*self.speed)
+                adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
+                adjusted_speed_right = int((base_speed + self.heading)*self.speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
             elif self.command == 'F':
                 self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
@@ -181,14 +183,18 @@ class SpheroServer:
                 print(f"Error in status_updater: {e}")
                 time.sleep(1)
             sensor_data = {
-            #"Battery"       : self.rvrBatteryPercentage, 
-            "IMU"           : self.rvrIMU,
-            "LightSensor"   : self.rvrColor,
-            "AmbientLight"  : self.rvrAmbientLight
-            #"Encoders"      : self.rvrEncoders
+                "x"             : self.rvrX,
+                "y"             : self.rvrY,
+                "z"             : self.rvrZ,
+                "pitch"         : self.rvrPitch,
+                "yaw"           : self.rvrYaw,
+                "roll"          : self.rvrRoll,
+                "LightSensor"   : self.rvrColor,
+                "AmbientLight"  : self.rvrAmbientLight
             }
             sensor_json = json.dumps(sensor_data)
-            print(f"Sending sensor data: {sensor_json}")
+            print("Sending sensor data:")
+            print(sensor_json)
             client_socket.send(sensor_json.encode())      
     def control_robot_light(self):
         try:
@@ -215,9 +221,18 @@ class SpheroServer:
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
-        self.rvrIMU = imu_data
+        accel = command_data.get("Accelerometer")
+        self.rvrX = accel.get("X")
+        self.rvrY = accel.get("Y")
+        self.rvrZ = accel.get("Z")
+        gyro = command_data.get("IMU")
+        self.rvrPitch = gyro.get("Pitch")
+        self.rvrYaw   = gyro.get("Yaw")
+        self.rvrRoll  = gyro.get("Roll")
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = ambient_light_data
+        ambi = command_data.get("AmbientLight")
+        lightLvl = ambi.get("Light")
+        self.rvrAmbientLight = lightLvl
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
 if __name__ == "__main__":
