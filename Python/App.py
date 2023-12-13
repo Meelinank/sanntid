@@ -233,7 +233,7 @@ class SpheroServer:
         self.rvrAmbientLight = get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
-    def get_nested(dictionary, *keys):
+    def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
             if element:
