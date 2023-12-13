@@ -39,6 +39,7 @@ class SpheroServer:
 
         self.exit_flag              = False
         self.command                = None
+        self.direction              = None
         self.heading                = None
         self.speed                  = None
         self.rvrBatteryPercentage   = None
@@ -138,7 +139,8 @@ class SpheroServer:
                 print(f"Received message: {message}")
                 try:
                     command_data = json.loads(message)
-                    self.command = command_data.get("command")
+                    self.command = command_data.get("command","MANUAL")
+                    self.direction = command_data.get("direction","S")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
@@ -163,19 +165,19 @@ class SpheroServer:
                     adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
                     adjusted_speed_right = int((base_speed + self.heading)*self.speed)
                     self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-                elif self.command == 'F':
+                elif self.direction == 'F':
                     self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
-                elif self.command == 'B':
+                elif self.direction == 'B':
                     self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
-                elif self.command == 'FL':
+                elif self.direction == 'FL':
                     self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
-                elif self.command == 'FR':
+                elif self.direction == 'FR':
                     self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
-                elif self.command == 'BL':
+                elif self.direction == 'BL':
                     self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
-                elif self.command == 'BR':
+                elif self.direction == 'BR':
                     self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
-                elif self.command == 'S':
+                elif self.direction == 'S':
                     self.rvr.raw_motors(0, 0, 0, 0)
                 else:
                     print(f"Unknown command: {self.command}")
