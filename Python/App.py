@@ -177,30 +177,30 @@ class SpheroServer:
         while not self.exit_flag:
             try:
                 self.rvr.enable_color_detection(is_enabled=True)
+                self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
-                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
+                self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=100)
 
                 while not self.exit_flag:
                     sensor_data = {
-                        "x": self.rvrX,
-                        "y": self.rvrY,
-                        "z": self.rvrZ,
-                        "pitch": self.rvrPitch,
-                        "yaw": self.rvrYaw,
-                        "roll": self.rvrRoll,
-                        "LightSensor": self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight
+                        "X":            self.rvrX,
+                        "Y":            self.rvrY,
+                        "Z":            self.rvrZ,
+                        "pitch":        self.rvrPitch,
+                        "yaw":          self.rvrYaw,
+                        "roll":         self.rvrRoll,
+                        "ColorSensor":  self.rvrColor,
+                        "AmbientLight": self.rvrAmbientLight,
+                        "Battery":      self.rvrBatteryPercentage
                         # include any other sensor data here
                     }
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
                     print(f"Sending sensor data:{sensor_json}")
                     client_socket.sendall(sensor_json.encode())
-                    #time.sleep(1)  # Adjust the frequency of updates as needed
-
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
                 time.sleep(1)
@@ -225,9 +225,12 @@ class SpheroServer:
             print(f"Error stopping RVR: {e}")
     #sensor handlers
     def rvrBatteryPercentage_handler(self,battery_percentage):
-        self.rvrBattery = battery_percentage
+        self.rvrBatteryPercentage = battery_percentage
     def rvrColor_handler(self,color_data):
-        self.rvrColor = color_data
+        R = self.get_nested(color_data, "ColorDetection", "R")
+        G = self.get_nested(color_data, "ColorDetection", "G")
+        B = self.get_nested(color_data, "ColorDetection", "B")
+        self.rvrColor = [R,G,B]
     def rvrIMU_handler(self,imu_data):
         self.rvrX     = self.get_nested(imu_data, "Accelerometer", "X")
         self.rvrY     = self.get_nested(imu_data, "Accelerometer", "Y")
@@ -239,6 +242,7 @@ class SpheroServer:
         self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
+        
     def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
