@@ -47,7 +47,18 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ..
         cmake --build . --config Release
-        sudo make install
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Install OpenCV (Windows)
+      run: |
+        git clone https://github.com/opencv/opencv.git
+        cd opencv
+        git checkout 4.0.0
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ..
+        cmake --build . --config Release
+      if: matrix.os == 'windows-latest'
 
     - name: Set reusable strings
       id: strings
@@ -61,12 +72,36 @@ jobs:
       with:
         boost_version: 1.82.0
 
+    # Install nlohmann_json
     - name: Install nlohmann_json
       run: |
         git clone https://github.com/nlohmann/json.git
         cd json
         cmake -B build
         cmake --build build --target install
+      shell: bash
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Install nlohmann_json (Windows)
+      run: |
+        git clone https://github.com/nlohmann/json.git
+        cd json
+        cmake -B build -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/nlohmann_json
+        cmake --build build --target install
+      shell: cmd
+      if: matrix.os == 'windows-latest'
+
+    # Install OpenCV globally
+    - name: Install OpenCV (Linux)
+      run: sudo make install
+      working-directory: opencv/build
+      if: matrix.os == 'ubuntu-latest'
+
+    # Install OpenCV on Windows
+    - name: Install OpenCV (Windows)
+      run: cmake --build . --target INSTALL --config Release
+      working-directory: opencv/build
+      if: matrix.os == 'windows-latest'
 
     - name: Configure CMake
       run: >
