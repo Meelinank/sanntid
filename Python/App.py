@@ -175,7 +175,7 @@ class SpheroServer:
         except Exception as e:
             print(f"Error in control_robot: {e}")
     
-    def sensor_updater(self):
+    def sensor_updater(self, client_socket):
         while not self.exit_flag:
             try:
                 self.rvr.enable_color_detection(is_enabled=True)
