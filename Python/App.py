@@ -71,7 +71,7 @@ class SpheroServer:
         sensor_thread.start()
 
         #video_thread.join()
-        #command_thread.join()
+        command_thread.join()
         #sensor_thread.join()
     def video_server(self):
         while not self.exit_flag:
