@@ -138,7 +138,7 @@ class SpheroServer:
                 print(f"Received message: {message}")
                 try:
                     command_data = json.loads(message)
-                    self.command = command_data.get("command", "S")
+                    self.command = command_data.get("command")
                     self.heading = command_data.get("heading", 0)
                     self.speed   = command_data.get("speed", 1)
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
