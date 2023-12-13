@@ -39,7 +39,6 @@ class SpheroServer:
         self.rvrBatteryPercentage   = None
         self.rvrColor               = None
         self.rvrTemps               = None
-        self.rvrAccelerometer       = None
         self.rvrIMU                 = None
         self.rvrAmbientLight        = None
         self.rvrEncoders            = None
@@ -50,7 +49,7 @@ class SpheroServer:
         self.video_socket.close()
 
     def start_server(self):
-        print("Starting video server...")
+        print("Starting video   server...")
         video_thread = threading.Thread(target=self.video_server)
         video_thread.start()
 
@@ -58,7 +57,7 @@ class SpheroServer:
         command_thread = threading.Thread(target=self.command_server)
         command_thread.start()
 
-        print("Starting sensors...")
+        print("Starting sensor  server...")
         sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
 
@@ -82,10 +81,19 @@ class SpheroServer:
                 client_socket, addr = self.command_socket.accept()
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
-                
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
+                time.sleep(1)
+        
+    def sensor_server(self):    
+        while not self.exit_flag:
+            try:
+                client_socket, addr = self.video_socket.accept()
+                print("Sensor client connected:", addr)
+                self.sensor_updater(client_socket)
+            except Exception as e:
+                print(f"Sensor server error: {e}")
                 time.sleep(1)
 
     def process_video_stream(self, client_socket):
@@ -128,17 +136,6 @@ class SpheroServer:
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
-                sensor_data = {
-                "Battery"       : self.rvrBatteryPercentage, 
-                "IMU"           : self.rvrIMU,
-                "LightSensor"   : self.rvrColor,
-                "AmbientLight"  : self.rvrAmbientLight,
-                "Encoders"      : self.rvrEncoders,
-                "Accelerometer" : self.rvrAccelerometer
-                }
-                sensor_json = json.dumps(sensor_data)
-                print(f"Sending sensor data: {sensor_json}")
-                client_socket.send(sensor_json.encode())      
         except Exception as e:
             print(f"Error handling client: {e}")
         finally:
@@ -172,11 +169,10 @@ class SpheroServer:
         except Exception as e:
             print(f"Error in control_robot: {e}")
     
-    def sensor_server(self):
+    def sensor_updater(self):
         while not self.exit_flag:
             try:
                 self.rvr.enable_color_detection(is_enabled=True)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer  ,handler=self.rvrAccelerometer_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu            ,handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light  ,handler=self.rvrAmbientLight_handler)
@@ -189,7 +185,16 @@ class SpheroServer:
             except Exception as e:
                 print(f"Error in status_updater: {e}")
                 time.sleep(1)
-
+            sensor_data = {
+            "Battery"       : self.rvrBatteryPercentage, 
+            "IMU"           : self.rvrIMU,
+            "LightSensor"   : self.rvrColor,
+            "AmbientLight"  : self.rvrAmbientLight,
+            "Encoders"      : self.rvrEncoders
+            }
+            sensor_json = json.dumps(sensor_data)
+            print(f"Sending sensor data: {sensor_json}")
+            client_socket.send(sensor_json.encode())      
 
     def control_robot_light(self):
         try:
@@ -214,8 +219,6 @@ class SpheroServer:
 
     def rvrBatteryPercentage_handler(self,battery_percentage):
         self.rvrBattery = battery_percentage
-    def rvrAccelerometer_handler(self,accelerometer_data):
-        self.rvrAccelerometer = accelerometer_data
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
