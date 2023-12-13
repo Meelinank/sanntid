@@ -70,9 +70,9 @@ class SpheroServer:
         sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
 
-        video_thread.join()
-        command_thread.join()
-        sensor_thread.join()
+        #video_thread.join()
+        #command_thread.join()
+        #sensor_thread.join()
     def video_server(self):
         while not self.exit_flag:
             try:
@@ -186,14 +186,13 @@ class SpheroServer:
                         "yaw": self.rvrYaw,
                         "roll": self.rvrRoll,
                         "LightSensor": self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight,
+                        "AmbientLight": self.rvrAmbientLight
                         # include any other sensor data here
                     }
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                    print("Sending sensor data:")
-                    print(sensor_json)
+                    print(f"Sending sensor data:"{sensor_json})
                     client_socket.sendall(sensor_json.encode())
-                    time.sleep(1)  # Adjust the frequency of updates as needed
+                    #time.sleep(1)  # Adjust the frequency of updates as needed
 
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
@@ -223,14 +222,14 @@ class SpheroServer:
     def rvrColor_handler(self,color_data):
         self.rvrColor = color_data
     def rvrIMU_handler(self,imu_data):
-        self.rvrX     = get_nested(imu_data, "Accelerometer", "X")
-        self.rvrY     = get_nested(imu_data, "Accelerometer", "Y")
-        self.rvrZ     = get_nested(imu_data, "Accelerometer", "Z")
-        self.rvrPitch = get_nested(imu_data, "IMU"          , "Pitch")
-        self.rvrYaw   = get_nested(imu_data, "IMU"          , "Yaw"  )
-        self.rvrRoll  = get_nested(imu_data, "IMU"          , "Roll" )
+        self.rvrX     = self.get_nested(imu_data, "Accelerometer", "X")
+        self.rvrY     = self.get_nested(imu_data, "Accelerometer", "Y")
+        self.rvrZ     = self.get_nested(imu_data, "Accelerometer", "Z")
+        self.rvrPitch = self.get_nested(imu_data, "IMU"          , "Pitch")
+        self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
+        self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = get_nested(ambient_light_data, "AmbientLight", "Light")
+        self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
         self.rvrEncoders = encoder_data 
     def get_nested(self, dictionary, *keys):
