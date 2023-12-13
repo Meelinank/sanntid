@@ -47,7 +47,7 @@ void FrameReceiver::receiveFrames() {
             boost::asio::read(video_socket, boost::asio::buffer(&length, sizeof(length)));
             length = ntohl(length);
 
-            if (length > 10000000) { // Arbitrary large value to detect potential misalignment
+            if (length > 10000000) {
                 std::cerr << "Frame size too large, possible misalignment\n";
                 continue;
             }

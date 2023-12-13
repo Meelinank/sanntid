@@ -1,6 +1,5 @@
 #include "CommandSender.hpp"
 #include <iostream>
-#include <chrono>
 
 CommandSender::CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port)
         : io_service(io_service), server(server), port(port), command_socket(io_service) {

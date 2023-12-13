@@ -7,7 +7,7 @@ find_package(OpenCV REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 add_subdirectory(UI)
 
-add_executable(sanntid main.cpp src/FrameReceiver.cpp src/RobotController.cpp src/CommandSender.cpp)
+add_executable(sanntid main.cpp src/FrameReceiver.cpp src/RobotController.cpp src/CommandSender.cpp src/SensorDataReceiver.cpp)
 
 add_executable(UI_test UI/UI_test.cpp)
 include_directories(${OpenCV_INCLUDE_DIRS})
