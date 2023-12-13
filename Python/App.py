@@ -48,12 +48,10 @@ class SpheroServer:
         self.rvrAmbientLight        = None
         self.rvrEncoders            = None
         self.last_command           = None
-
     def __del__(self):
         self.command_socket.close()
         self.video_socket.close()
         self.sensor_socket.close()
-
     def start_server(self):
         print("Starting video   server...")
         video_thread = threading.Thread(target=self.video_server)
@@ -70,7 +68,6 @@ class SpheroServer:
         video_thread.join()
         command_thread.join()
         sensor_thread.join()
-
     def video_server(self):
         while not self.exit_flag:
             try:
@@ -80,7 +77,6 @@ class SpheroServer:
             except Exception as e:
                 print(f"Video server error: {e}")
                 time.sleep(1)
-
     def command_server(self):
         while not self.exit_flag:
             try:
@@ -90,8 +86,7 @@ class SpheroServer:
                 self.last_command = self.command
             except Exception as e:
                 print(f"Command server error: {e}")
-                time.sleep(1)
-        
+                time.sleep(1)      
     def sensor_server(self):    
         while not self.exit_flag:
             try:
@@ -101,7 +96,6 @@ class SpheroServer:
             except Exception as e:
                 print(f"Sensor server error: {e}")
                 time.sleep(1)
-
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
         try:
@@ -120,7 +114,6 @@ class SpheroServer:
                 stream.truncate()
         finally:
             print("Video streaming stopped")
-
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
@@ -137,8 +130,6 @@ class SpheroServer:
                     self.speed   = command_data.get("speed", 1)
                     self.control_robot()  # Directly pass the parsed command data
                     self.control_robot_light()
-
-                    
                 except json.JSONDecodeError:
                     # If it fails, parse it as non-nested JSON
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
@@ -147,7 +138,6 @@ class SpheroServer:
         finally:
             client_socket.close()
             print("Client socket closed")
-
     def control_robot(self):
         base_speed = 101  # Base speed for forward and backward movement
         turn_adjustment = 70  # Speed adjustment for manual turning
@@ -173,8 +163,7 @@ class SpheroServer:
             else:
                 print(f"Unknown command: {self.command}")
         except Exception as e:
-            print(f"Error in control_robot: {e}")
-    
+            print(f"Error in control_robot: {e}")  
     def sensor_updater(self, client_socket):
         while not self.exit_flag:
             try:
@@ -192,16 +181,15 @@ class SpheroServer:
                 print(f"Error in status_updater: {e}")
                 time.sleep(1)
             sensor_data = {
-            "Battery"       : self.rvrBatteryPercentage, 
+            #"Battery"       : self.rvrBatteryPercentage, 
             "IMU"           : self.rvrIMU,
             "LightSensor"   : self.rvrColor,
-            "AmbientLight"  : self.rvrAmbientLight,
-            "Encoders"      : self.rvrEncoders
+            "AmbientLight"  : self.rvrAmbientLight
+            #"Encoders"      : self.rvrEncoders
             }
             sensor_json = json.dumps(sensor_data)
             print(f"Sending sensor data: {sensor_json}")
             client_socket.send(sensor_json.encode())      
-
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -215,14 +203,13 @@ class SpheroServer:
                     self.rvr.led_control.set_all_leds_color(color=Colors.purple)
         except Exception as e:
             print(f"Error in control_robot_light: {e}")
-
     def stop(self):
         self.exit_flag = True
         try:
             self.rvr.close()
         except Exception as e:
             print(f"Error stopping RVR: {e}")
-
+    #sensor handlers
     def rvrBatteryPercentage_handler(self,battery_percentage):
         self.rvrBattery = battery_percentage
     def rvrColor_handler(self,color_data):
@@ -232,12 +219,10 @@ class SpheroServer:
     def rvrAmbientLight_handler(self,ambient_light_data):
         self.rvrAmbientLight = ambient_light_data
     def rvrEncoders_handler(self,encoder_data):
-        self.rvrEncoders = encoder_data
-    
+        self.rvrEncoders = encoder_data 
 if __name__ == "__main__":
     server = SpheroServer()
     try:
         server.start_server()
     finally:
         server.stop()
-2
