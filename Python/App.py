@@ -110,7 +110,6 @@ class SpheroServer:
                 client_socket, addr = self.sensor_socket.accept()
                 print("Sensor client connected:", addr)
                 self.sensor_updater(client_socket)
-                
             except Exception as e:
                 print(f"Sensor server error: {e}")
                 time.sleep(1)
@@ -133,24 +132,20 @@ class SpheroServer:
         except Exception as e:
             print(f"Error capturing video: {e}")
     def handle_client(self, client_socket):
-        try:
-            while not self.exit_flag:
-                message = client_socket.recv(1024).decode('utf-8')
-                if not message:
-                    break
-                print(f"Received message: {message}")
-                try:
-                    data = json.loads(message)
-                    self.command    = data.get("command","MANUAL")
-                    self.direction  = data.get("direction","S")
-                    self.heading    = max(-100,min(100,data.get("heading", 0)))
-                    self.speed      = data.get("speed", 1)
-                    print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
-                except json.JSONDecodeError:
-                    print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
-        except Exception as e:
-            print(f"Error handling client: {e}")
-            time.sleep(1)
+        while not self.exit_flag:
+            message = client_socket.recv(1024).decode('utf-8')
+            if not message:
+                break
+            print(f"Received message: {message}")
+            try:
+                data = json.loads(message)
+                self.command    = data.get("command","MANUAL")
+                self.direction  = data.get("direction","S")
+                self.heading    = max(-100,min(100,data.get("heading", 0)))
+                self.speed      = data.get("speed", 1)
+                print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
+            except json.JSONDecodeError:
+                print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
     def control_robot(self):
         try:
             while not self.exit_flag:
@@ -186,39 +181,36 @@ class SpheroServer:
             print(f"Error in control_robot: {e}")
 
     def sensor_updater(self, client_socket):
-        try: 
-            while not self.exit_flag:
-                try:
-                    self.rvr.enable_color_detection(is_enabled=True)
-                    self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
-                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
-                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
-                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                    # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
-                    self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
-                    self.rvr.sensor_control.start(interval=1000)
+        while not self.exit_flag:
+            try:
+                self.rvr.enable_color_detection(is_enabled=True)
+                self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
+                # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
+                self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
+                self.rvr.sensor_control.start(interval=1000)
 
-                    while not self.exit_flag:
-                        sensor_data = {
-                            "X":            self.rvrX,
-                            "Y":            self.rvrY,
-                            "Z":            self.rvrZ,
-                            "pitch":        self.rvrPitch,
-                            "yaw":          self.rvrYaw,
-                            "roll":         self.rvrRoll,
-                            "ColorSensor":  self.rvrColor,
-                            "AmbientLight": self.rvrAmbientLight,
-                            "Battery":      self.rvrBatteryPercentage
-                            # include any other sensor data here
-                        }
-                        sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                        print(f"Sending sensor data:{sensor_json}")
-                        client_socket.sendall(sensor_json.encode())
-                except Exception as e:
-                    print(f"Error in sensor_updater: {e}")
-                    time.sleep(1)
-        except Exception as e:
-            print(f"Error in sensor_updater: {e}")
+                while not self.exit_flag:
+                    sensor_data = {
+                        "X":            self.rvrX,
+                        "Y":            self.rvrY,
+                        "Z":            self.rvrZ,
+                        "pitch":        self.rvrPitch,
+                        "yaw":          self.rvrYaw,
+                        "roll":         self.rvrRoll,
+                        "ColorSensor":  self.rvrColor,
+                        "AmbientLight": self.rvrAmbientLight,
+                        "Battery":      self.rvrBatteryPercentage
+                        # include any other sensor data here
+                    }
+                    sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
+                    print(f"Sending sensor data:{sensor_json}")
+                    client_socket.sendall(sensor_json.encode())
+            except Exception as e:
+                print(f"Error in sensor_updater: {e}")
+                time.sleep(1)
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
