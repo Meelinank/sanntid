@@ -135,6 +135,8 @@ class SpheroServer:
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
+                if client_socket.stillconnected() is false:
+                    self.exit_flag = True
                 message = client_socket.recv(1024).decode('utf-8')
                 if not message:
                     break
@@ -152,11 +154,10 @@ class SpheroServer:
             print(f"Error handling client: {e}")
         finally:
             client_socket.close()
-    def control_robot(self,client_socket):
+    def control_robot(self):
         try:
             while not self.exit_flag:
-                if client_socket.stillconnected() is false:
-                    self.exit_flag = True
+
                 #while  self.commandconnection == True and self.sensorconnection == True:
                 base_speed      = 101
                 turn_adjustment = 70
