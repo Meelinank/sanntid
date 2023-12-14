@@ -73,7 +73,7 @@ class SpheroServer:
         robot_thread = threading.Thread(target=self.control_robot)
         robot_thread.start()
         
-        #video_thread.join()
+        video_thread.join()
         command_thread.join()
         #sensor_thread.join()
         robot_thread.join()
@@ -193,24 +193,22 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=1000)
-
-                while not self.exit_flag:
-                    sensor_data = {
-                        "X":            self.rvrX,
-                        "Y":            self.rvrY,
-                        "Z":            self.rvrZ,
-                        "pitch":        self.rvrPitch,
-                        "yaw":          self.rvrYaw,
-                        "roll":         self.rvrRoll,
-                        "ColorSensor":  self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight,
-                        "Battery":      self.rvrBatteryPercentage
-                        # include any other sensor data here
-                    }
-                    sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                    print(f"Sending sensor data:{sensor_json}")
-                    client_socket.sendall(sensor_json.encode())
-                    time.sleep(0.5)
+                sensor_data = {
+                    "X":            self.rvrX,
+                    "Y":            self.rvrY,
+                    "Z":            self.rvrZ,
+                    "pitch":        self.rvrPitch,
+                    "yaw":          self.rvrYaw,
+                    "roll":         self.rvrRoll,
+                    "ColorSensor":  self.rvrColor,
+                    "AmbientLight": self.rvrAmbientLight,
+                    "Battery":      self.rvrBatteryPercentage
+                    # include any other sensor data here
+                }
+                sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
+                print(f"Sending sensor data:{sensor_json}")
+                client_socket.sendall(sensor_json.encode())
+                time.sleep(1)
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
                 time.sleep(1)
