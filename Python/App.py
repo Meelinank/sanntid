@@ -75,7 +75,7 @@ class SpheroServer:
         
         #video_thread.join()
         command_thread.join()
-        sensor_thread.join()
+        #sensor_thread.join()
         robot_thread.join()
     def video_server(self):
         self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -232,7 +232,7 @@ class SpheroServer:
             print(f"Error stopping RVR: {e}")
     #sensor handlers
     def rvrBatteryPercentage_handler(self,battery_percentage):
-        self.rvrBatteryPercentage = battery_percentage.get("state")
+        self.rvrBatteryPercentage = battery_percentage.get("percentage")
     def rvrColor_handler(self,color_data):
         R = self.get_nested(color_data, "ColorDetection", "R")
         G = self.get_nested(color_data, "ColorDetection", "G")
