@@ -210,6 +210,7 @@ class SpheroServer:
                     sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
                     print(f"Sending sensor data:{sensor_json}")
                     client_socket.sendall(sensor_json.encode())
+                    time.sleep(0.5)
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
                 time.sleep(1)
