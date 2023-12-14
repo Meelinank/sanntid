@@ -147,6 +147,7 @@ class SpheroServer:
             if not message:
                 break
             print(f"Received message: {message}")
+            
             try:
                 data = json.loads(message)
                 self.command = data.get("command")
@@ -154,30 +155,31 @@ class SpheroServer:
                 self.heading = max(-100, min(100, data.get("heading", 0)))
                 self.speed = data.get("speed")
                 #print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
-                self.control_robot()
+
             except json.JSONDecodeError:
                 print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
-
+            self.control_robot()
+            self.control_robot_light()
     def control_robot(self):
         #try:
             #while not self.exit_flag:
         try:
             print(f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
-            self.control_robot_light()
+            
             base_speed = 101
             turn_adjustment = 70
             if self.command == 'AUTO':
                 adjusted_speed_left = int((base_speed - self.heading) * self.speed)
                 adjusted_speed_right = int((base_speed + self.heading) * self.speed)
                 self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-            elif self.direction == 'F':
+            elif self.command == 'MANUAL' and self.direction == 'F':
                 self.rvr.raw_motors(1, int((base_speed) * self.speed), 1, int((base_speed) * self.speed))
-            elif self.direction == 'B':
+            elif self.command == 'MANUAL' and self.direction == 'B':
                 self.rvr.raw_motors(2, int((base_speed) * self.speed), 2, int((base_speed) * self.speed))
-            elif self.direction == 'L':
+            elif self.command == 'MANUAL' and self.direction == 'L':
                 self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * self.speed), 1,
                                     int((base_speed + turn_adjustment) * self.speed))
-            elif self.direction == 'R':
+            elif self.command == 'MANUAL' and self.direction == 'R':
                 self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * self.speed), 1,
                                     int((base_speed - turn_adjustment) * self.speed))
             elif self.direction == 'S':
