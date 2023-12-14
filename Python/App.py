@@ -163,7 +163,7 @@ class SpheroServer:
         turn_adjustment = 70
         try:
             while not self.exit_flag:
-                if self.commandconnection == True:
+                if self.command != None:
                     try:
                         print(
                             f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
