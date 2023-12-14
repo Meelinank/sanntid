@@ -3,12 +3,20 @@ import sys
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 from sphero_sdk import SpheroRvrObserver
+from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
 rvr = SpheroRvrObserver()
 
 
-def battery_voltage_state_change_handler(battery_voltage_state):
-    print('Battery voltage state: ', battery_voltage_state)
+def battery_voltage_handler(battery_voltage_state):
+    print('Voltage state: ', battery_voltage_state)
 
+    state_info = '[{}, {}, {}, {}]'.format(
+        '{}: {}'.format(VoltageStates.unknown.name, VoltageStates.unknown.value),
+        '{}: {}'.format(VoltageStates.ok.name, VoltageStates.ok.value),
+        '{}: {}'.format(VoltageStates.low.name, VoltageStates.low.value),
+        '{}: {}'.format(VoltageStates.critical.name, VoltageStates.critical.value)
+    )
+    print('Voltage states: ', state_info)
 
 def main():
     """ This program demonstrates how to enable battery state change notifications.
@@ -23,7 +31,7 @@ def main():
         print(i)
         i = i + 1
         try:
-            rvr.on_battery_voltage_state_change_notify(handler=battery_voltage_state_change_handler)
+            rvr.get_battery_voltage_state(handler=battery_voltage_handler)
             print("ping")
         except KeyboardInterrupt:
             print('\nProgram terminated with keyboard interrupt.')             
