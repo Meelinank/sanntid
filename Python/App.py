@@ -74,9 +74,9 @@ class SpheroServer:
         robot_thread.start()
         
         #video_thread.join()
-        #command_thread.join()
+        command_thread.join()
         #sensor_thread.join()
-        #robot_thread.join()
+        robot_thread.join()
     def video_server(self):
         self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.video_socket.bind(('10.25.45.112', 8000))
