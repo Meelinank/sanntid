@@ -128,9 +128,8 @@ class SpheroServer:
                     break
                 stream.seek(0)
                 stream.truncate()
-                finally:
-                    client_socket.close()
-                    print("Video streaming stopped")
+        except Exception as e:
+            print(f"Error capturing video: {e}")
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
@@ -215,11 +214,8 @@ class SpheroServer:
                 except Exception as e:
                     print(f"Error in sensor_updater: {e}")
                     time.sleep(1)
-                finally:
-                    client_socket.close()
         except Exception as e:
             print(f"Error in sensor_updater: {e}")
-        
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
