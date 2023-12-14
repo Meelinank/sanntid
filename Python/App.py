@@ -129,12 +129,11 @@ class SpheroServer:
                 stream.seek(0)
                 stream.truncate()
         finally:
+            client_socket.close()
             print("Video streaming stopped")
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
-                if client_socket.stillconnected() is False:
-                    self.exit_flag = True
                 message = client_socket.recv(1024).decode('utf-8')
                 if not message:
                     break
@@ -185,12 +184,12 @@ class SpheroServer:
                     print(f"Error in control_robot: {e}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
+        finally:
+            client_socket.close()
     def sensor_updater(self, client_socket):
         try: 
             while not self.exit_flag:
                 try:
-                    if client_socket.stillconnected() is False:
-                        self.exit_flag = True
                     self.rvr.enable_color_detection(is_enabled=True)
                     self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
                     self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
@@ -221,6 +220,8 @@ class SpheroServer:
                     time.sleep(1)
         except Exception as e:
             print(f"Error in sensor_updater: {e}")
+        finally:
+            client_socket.close()
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
