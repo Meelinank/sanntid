@@ -25,12 +25,18 @@ class SpheroServer:
             print(f"Failed to initialize Sphero RVR: {e}")
 
         # Video streaming socket
-        
+        self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.video_socket.bind(('10.25.45.112', 8000))
+        self.video_socket.listen(1)
         # Command handling socket
+        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.command_socket.bind(('10.25.45.112', 8001))
+        self.command_socket.listen(1)
 
-
-        # Command handling socket
-
+        # sensor handling socket
+        self.sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sensor_socket.bind(('10.25.45.112', 8002))
+        self.sensor_socket.listen(1)
 
         self.exit_flag              = False
         self.command                = None
@@ -78,9 +84,7 @@ class SpheroServer:
         #sensor_thread.join()
         robot_thread.join()
     def video_server(self):
-        self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.video_socket.bind(('10.25.45.112', 8000))
-        self.video_socket.listen(1)
+        
         while not self.exit_flag:
             try:
                 client_socket, addr = self.video_socket.accept()
@@ -90,9 +94,7 @@ class SpheroServer:
                 print(f"Video server error: {e}")
                 time.sleep(1)
     def command_server(self):
-        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.command_socket.bind(('10.25.45.112', 8001))
-        self.command_socket.listen(1)
+
         while not self.exit_flag:
             try:
                 client_socket, addr = self.command_socket.accept()
@@ -104,9 +106,7 @@ class SpheroServer:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
     def sensor_server(self):    
-        self.sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sensor_socket.bind(('10.25.45.112', 8002))
-        self.sensor_socket.listen(1)
+        
         while not self.exit_flag:
             try:
                 client_socket, addr = self.sensor_socket.accept()
