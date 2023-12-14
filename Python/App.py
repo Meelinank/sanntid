@@ -146,8 +146,9 @@ class SpheroServer:
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                 except json.JSONDecodeError:
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
-                finally:
-                    client_socket.close()
+        except Exception as e:
+            print(f"Error handling client: {e}")
+            time.sleep(1)
     def control_robot(self):
         try:
             while not self.exit_flag:
