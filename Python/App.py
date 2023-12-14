@@ -191,7 +191,6 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccel_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=1000)
 
@@ -244,9 +243,7 @@ class SpheroServer:
         self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
         self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
-    def rvrEncoders_handler(self,encoder_data):
-        self.rvrEncoders = encoder_data     
+        self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")  
     def rvrAccel_handler(self,accel_data):
         self.rvrX = accel_data.get(accel_data, "X")
         self.rvrY = accel_data.get(accel_data, "Y")
