@@ -155,70 +155,75 @@ class SpheroServer:
         finally:
             client_socket.close()
     def control_robot(self):
-        while not self.exit_flag:
-            #while  self.commandconnection == True and self.sensorconnection == True:
-            base_speed      = 101
-            turn_adjustment = 70
-            try:
-                print(f"Executing command: {self.command}")
-                self.control_robot_light()
-                if self.last_command == 'AUTO' and self.command != 'AUTO':
-                    self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
-                    continue
-                if self.command == 'AUTO':
-                    adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
-                    adjusted_speed_right = int((base_speed + self.heading)*self.speed)
-                    self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-                elif self.direction == 'F':
-                    self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
-                elif self.direction == 'B':
-                    self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
-                elif self.direction == 'FL':
-                    self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
-                elif self.direction == 'FR':
-                    self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
-                elif self.direction == 'BL':
-                    self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
-                elif self.direction == 'BR':
-                    self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
-                elif self.direction == 'S':
-                    self.rvr.raw_motors(0, 0, 0, 0)
-                else:
-                    print(f"Unknown command: {self.command}")
-            except Exception as e:
-                print(f"Error in control_robot: {e}")
-                #time.sleep(1)         
+        try:
+            while not self.exit_flag:
+                #while  self.commandconnection == True and self.sensorconnection == True:
+                base_speed      = 101
+                turn_adjustment = 70
+                try:
+                    print(f"Executing command: {self.command}")
+                    self.control_robot_light()
+                    if self.last_command == 'AUTO' and self.command != 'AUTO':
+                        self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
+                        continue
+                    if self.command == 'AUTO':
+                        adjusted_speed_left  = int((base_speed - self.heading)*self.speed)
+                        adjusted_speed_right = int((base_speed + self.heading)*self.speed)
+                        self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+                    elif self.direction == 'F':
+                        self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
+                    elif self.direction == 'B':
+                        self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
+                    elif self.direction == 'FL':
+                        self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
+                    elif self.direction == 'FR':
+                        self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
+                    elif self.direction == 'BL':
+                        self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
+                    elif self.direction == 'BR':
+                        self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
+                    elif self.direction == 'S':
+                        self.rvr.raw_motors(0, 0, 0, 0)
+                    else:
+                        print(f"Unknown command: {self.command}")
+                except Exception as e:
+                    print(f"Error in control_robot: {e}")
+        except Exception as e:
+            print(f"Error in control_robot: {e}")
     def sensor_updater(self, client_socket):
-        while not self.exit_flag:
-            try:
-                self.rvr.enable_color_detection(is_enabled=True)
-                self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
-                self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
-                self.rvr.sensor_control.start(interval=1000)
+        try: 
+            while not self.exit_flag:
+                try:
+                    self.rvr.enable_color_detection(is_enabled=True)
+                    self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
+                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
+                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
+                    self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
+                    # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
+                    self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
+                    self.rvr.sensor_control.start(interval=1000)
 
-                while not self.exit_flag:
-                    sensor_data = {
-                        "X":            self.rvrX,
-                        "Y":            self.rvrY,
-                        "Z":            self.rvrZ,
-                        "pitch":        self.rvrPitch,
-                        "yaw":          self.rvrYaw,
-                        "roll":         self.rvrRoll,
-                        "ColorSensor":  self.rvrColor,
-                        "AmbientLight": self.rvrAmbientLight,
-                        "Battery":      self.rvrBatteryPercentage
-                        # include any other sensor data here
-                    }
-                    sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                    print(f"Sending sensor data:{sensor_json}")
-                    client_socket.sendall(sensor_json.encode())
-            except Exception as e:
-                print(f"Error in sensor_updater: {e}")
-                time.sleep(1)
+                    while not self.exit_flag:
+                        sensor_data = {
+                            "X":            self.rvrX,
+                            "Y":            self.rvrY,
+                            "Z":            self.rvrZ,
+                            "pitch":        self.rvrPitch,
+                            "yaw":          self.rvrYaw,
+                            "roll":         self.rvrRoll,
+                            "ColorSensor":  self.rvrColor,
+                            "AmbientLight": self.rvrAmbientLight,
+                            "Battery":      self.rvrBatteryPercentage
+                            # include any other sensor data here
+                        }
+                        sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
+                        print(f"Sending sensor data:{sensor_json}")
+                        client_socket.sendall(sensor_json.encode())
+                except Exception as e:
+                    print(f"Error in sensor_updater: {e}")
+                    time.sleep(1)
+        except Exception as e:
+            print(f"Error in sensor_updater: {e}")
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
