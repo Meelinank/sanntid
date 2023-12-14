@@ -8,6 +8,10 @@
 
 #define WINDOW_NAME "Sphero control & Camera Feed"
 
+unsigned int RGBtoUSLI(const cv::Scalar& color) {
+    return ((unsigned int)color[2] & 0xff) << 16 | ((unsigned int)color[1] & 0xff) << 8 | ((unsigned int)color[0] & 0xff); // Convert RGB to USLI
+}
+
 int main() {
     boost::asio::io_service io_service;
     FrameReceiver frameReceiver(io_service, "10.25.45.112", "8000");
@@ -17,6 +21,7 @@ int main() {
 
     float speed = 0;
     bool manualMode = true;
+    int keyTimer = 0;
 
     frameReceiver.startReceiving(); // Start receiving frames
     robotController.start();  // Start robot controller
@@ -34,7 +39,7 @@ int main() {
 
         if (not videoFrame.empty()) { // If the frame is not empty, display it
             cvui::image(frame, 50, 50, videoFrame);
-            cvui::text(frame, 50, 10, "Camera:", 0.8); // Video feed
+            cvui::text(frame, 50, 10, "Camera Feed:", 0.8); // Video feed
         }
 
         cvui::trackbar(frame, 50, 540, 360, &speed, (float)0.5, (float)1.125);
@@ -46,6 +51,11 @@ int main() {
 
         if (cvui::button(frame, 80, 440, "Manual")) { // Button for manual mode
             manualMode = true;
+            nlohmann::json j;
+            j["command"] = "MANUAL";
+            // Include any other relevant data
+            std::string jsonString = j.dump();
+            commandSender.sendCommand(jsonString);
         }
         if (cvui::button(frame, 80, 480, "Automatic")) { // Button for automatic mode
             manualMode = false;
@@ -73,22 +83,27 @@ int main() {
         }
 
         if (manualMode) {
-            cvui::text(frame, 300, 420, "Manual Control Active", 0.6);
+            keyTimer++;
+            cvui::text(frame, 280, 420, "Manual Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 255, 0)));
             nlohmann::json j;
             if (key == 119) {  // 'w' key for Forward
-                j["command"] = "F";
+                j["direction"] = "F";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 97) {  // 'a' key for Left
-                j["command"] = "FL";
+                j["direction"] = "FL";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 100) {  // 'd' key for Right
-                j["command"] = "FR";
+                j["direction"] = "FR";
                 j["speed"] = speed;
+                keyTimer = 0;
             } else if (key == 115) {  // 's' key for Backward
-                j["command"] = "B";
+                j["direction"] = "B";
                 j["speed"] = speed;
-            } else if (key == 32) {  // Space bar for Stop
-                j["command"] = "S";
+                keyTimer = 0;
+            }  else if (keyTimer > 10) {  // Space bar for Stop
+                j["direction"] = "S";
             }
 
             if (!j.empty()) {
@@ -98,16 +113,14 @@ int main() {
             }
 
         } else {
-            cvui::text(frame, 300, 420, "Automatic Control Active", 0.6);
+            keyTimer = 0;
             if (!videoFrame.empty()) {
                 robotController.processFrame(videoFrame);
                 robotController.setSpeed(speed);
             }
             // text displaying when in automatic mode
-            cvui::text(frame, 300, 420, "Automatic Control Active");
+            cvui::text(frame, 280, 420, "Automatic Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
         }
-
-        //cvui::checkbox(frame, 50, 250, "Autonomous Mode", &manualMode);
 
         cvui::text(frame, 440, 10, "Sensor Data:", 0.8); // Data from Sphero
 
