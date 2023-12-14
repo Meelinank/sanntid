@@ -135,7 +135,7 @@ class SpheroServer:
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
-                if client_socket.stillconnected() is false:
+                if client_socket.stillconnected() is False:
                     self.exit_flag = True
                 message = client_socket.recv(1024).decode('utf-8')
                 if not message:
@@ -195,7 +195,7 @@ class SpheroServer:
         try: 
             while not self.exit_flag:
                 try:
-                    if client_socket.stillconnected() is false:
+                    if client_socket.stillconnected() is False:
                         self.exit_flag = True
                     self.rvr.enable_color_detection(is_enabled=True)
                     self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
