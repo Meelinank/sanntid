@@ -274,4 +274,4 @@ if __name__ == "__main__":
         try:
             server.start_server()
         finally:
-            server.stop()
+            server.stop() # Stop the server on exit
