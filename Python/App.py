@@ -189,6 +189,7 @@ class SpheroServer:
                 self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccel_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
                 self.rvr.get_battery_percentage(handler=rvrBatteryPercentage_handler)
@@ -239,16 +240,17 @@ class SpheroServer:
         B = self.get_nested(color_data, "ColorDetection", "B")
         self.rvrColor = [R,G,B]
     def rvrIMU_handler(self,imu_data):
-        self.rvrX     = self.get_nested(imu_data, "Accelerometer", "X")
-        self.rvrY     = self.get_nested(imu_data, "Accelerometer", "Y")
-        self.rvrZ     = self.get_nested(imu_data, "Accelerometer", "Z")
         self.rvrPitch = self.get_nested(imu_data, "IMU"          , "Pitch")
         self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
         self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
         self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")
     def rvrEncoders_handler(self,encoder_data):
-        self.rvrEncoders = encoder_data         
+        self.rvrEncoders = encoder_data     
+    def rvrAccel_handler(self,accel_data):
+        self.rvrX = accel_data.get(accel_data, "X")
+        self.rvrY = accel_data.get(accel_data, "Y")
+        self.rvrZ = accel_data.get(accel_data, "Z")
     def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
