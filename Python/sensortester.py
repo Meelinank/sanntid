@@ -14,20 +14,20 @@ def main():
     """ This program demonstrates how to enable battery state change notifications.
     """
     rvr.wake()
-
+    i = 0
         # Give RVR time to wake up
     time.sleep(1)
     rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
     while True:
-        i = 0
+        
         print(i)
         i = i + 1
         try:
             rvr.on_battery_voltage_state_change_notify(handler=battery_voltage_state_change_handler)
+            print("ping")
         except KeyboardInterrupt:
-            print('\nProgram terminated with keyboard interrupt.')
-        finally:
-            rvr.close()
+            print('\nProgram terminated with keyboard interrupt.')             
+    rvr.close()       
 
 if __name__ == '__main__':
         main()
