@@ -4,18 +4,30 @@ import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
 from sphero_sdk import SpheroRvrObserver
-from sphero_sdk import RvrStreamingServices
+from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
 
 
 rvr = SpheroRvrObserver()
 
 
-def accelerometer_handler(accelerometer_data):
-    print('Accelerometer data response: ', accelerometer_data)
+def battery_percentage_handler(battery_percentage):
+    print('Battery percentage: ', battery_percentage)
+
+
+def battery_voltage_handler(battery_voltage_state):
+    print('Voltage state: ', battery_voltage_state)
+
+    state_info = '[{}, {}, {}, {}]'.format(
+        '{}: {}'.format(VoltageStates.unknown.name, VoltageStates.unknown.value),
+        '{}: {}'.format(VoltageStates.ok.name, VoltageStates.ok.value),
+        '{}: {}'.format(VoltageStates.low.name, VoltageStates.low.value),
+        '{}: {}'.format(VoltageStates.critical.name, VoltageStates.critical.value)
+    )
+    print('Voltage states: ', state_info)
 
 
 def main():
-    """ This program demonstrates how to enable a single sensor to stream.
+    """ This program demonstrates how to retrieve the battery state of RVR.
     """
 
     try:
@@ -24,26 +36,20 @@ def main():
         # Give RVR time to wake up
         time.sleep(2)
 
-        rvr.sensor_control.add_sensor_data_handler(
-            service=RvrStreamingServices.accelerometer,
-            handler=accelerometer_handler
-        )
+        rvr.get_battery_percentage(handler=battery_percentage_handler)
 
-        rvr.sensor_control.start(interval=250)
+        # Sleep for one second such that RVR has time to send data back
+        time.sleep(1)
 
-        while True:
-            # Delay to allow RVR to stream sensor data
-            time.sleep(1)
+        rvr.get_battery_voltage_state(handler=battery_voltage_handler)
+
+        # Sleep for one second such that RVR has time to send data back
+        time.sleep(1)
 
     except KeyboardInterrupt:
         print('\nProgram terminated with keyboard interrupt.')
 
     finally:
-        rvr.sensor_control.clear()
-
-        # Delay to allow RVR issue command before closing
-        time.sleep(.5)
-        
         rvr.close()
 
 

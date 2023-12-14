@@ -243,7 +243,8 @@ class SpheroServer:
         self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
         self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = ambient_light_data.get("AmbientLight")#self.get_nested(ambient_light_data, "AmbientLight", "Light")  
+        layer1 = self.get_nested(ambient_light_data, "AmbientLight")
+        self.rvrAmbientLight = layer1.get("Light")
     def rvrAccel_handler(self,accel_data):
         self.rvrX = self.get_nested(accel_data,'Accelerometer', "X")
         self.rvrY = self.get_nested(accel_data,'Accelerometer', "Y")
