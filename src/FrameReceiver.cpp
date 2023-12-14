@@ -27,12 +27,16 @@ void FrameReceiver::stopReceiving() {
 
 bool FrameReceiver::getNextFrame(cv::Mat& frame) {
     std::lock_guard<std::mutex> lock(queue_mutex);
-    if (!frame_queue.empty()) {
-        frame = frame_queue.front();
-        frame_queue.pop();
-        return true;
+    if (frame_queue.empty()) {
+        return false;
     }
-    return false;
+    // Get the most recent frame and discard the rest
+    frame = std::move(frame_queue.back());
+    while (!frame_queue.empty()) {
+        frame_queue.pop();
+    }
+
+    return true;
 }
 
 bool FrameReceiver::hasFrames() const {
