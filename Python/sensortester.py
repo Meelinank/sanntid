@@ -2,40 +2,50 @@ import os
 import sys
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+
 from sphero_sdk import SpheroRvrObserver
-from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
+from sphero_sdk import RvrStreamingServices
+
+
 rvr = SpheroRvrObserver()
 
 
-def battery_voltage_handler(battery_voltage_state):
-    print('Voltage state: ', battery_voltage_state)
+def accelerometer_handler(accelerometer_data):
+    print('Accelerometer data response: ', accelerometer_data)
 
-    state_info = '[{}, {}, {}, {}]'.format(
-        '{}: {}'.format(VoltageStates.unknown.name, VoltageStates.unknown.value),
-        '{}: {}'.format(VoltageStates.ok.name, VoltageStates.ok.value),
-        '{}: {}'.format(VoltageStates.low.name, VoltageStates.low.value),
-        '{}: {}'.format(VoltageStates.critical.name, VoltageStates.critical.value)
-    )
-    print('Voltage states: ', state_info)
 
 def main():
-    """ This program demonstrates how to enable battery state change notifications.
+    """ This program demonstrates how to enable a single sensor to stream.
     """
-    rvr.wake()
-    i = 0
+
+    try:
+        rvr.wake()
+
         # Give RVR time to wake up
-    time.sleep(1)
-    rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
-    while True:
+        time.sleep(2)
+
+        rvr.sensor_control.add_sensor_data_handler(
+            service=RvrStreamingServices.accelerometer,
+            handler=accelerometer_handler
+        )
+
+        rvr.sensor_control.start(interval=250)
+
+        while True:
+            # Delay to allow RVR to stream sensor data
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        print('\nProgram terminated with keyboard interrupt.')
+
+    finally:
+        rvr.sensor_control.clear()
+
+        # Delay to allow RVR issue command before closing
+        time.sleep(.5)
         
-        print(i)
-        i = i + 1
-        try:
-            rvr.get_battery_voltage_state(handler=battery_voltage_handler)
-            print("ping")
-        except KeyboardInterrupt:
-            print('\nProgram terminated with keyboard interrupt.')             
-    rvr.close()       
+        rvr.close()
+
 
 if __name__ == '__main__':
-        main()
+    main()
