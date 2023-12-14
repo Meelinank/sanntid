@@ -149,50 +149,48 @@ class SpheroServer:
             print(f"Received message: {message}")
             try:
                 data = json.loads(message)
-                self.command = data.get("command", "MANUAL")
-                self.direction = data.get("direction", "S")
+                self.command = data.get("command")
+                self.direction = data.get("direction")
                 self.heading = max(-100, min(100, data.get("heading", 0)))
-                self.speed = data.get("speed", 1)
-                print(
-                    f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
+                self.speed = data.get("speed")
+                #print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
                 self.control_robot()
             except json.JSONDecodeError:
                 print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
 
     def control_robot(self):
-        base_speed = 101
-        turn_adjustment = 70
+        #try:
+            #while not self.exit_flag:
         try:
-            while not self.exit_flag:
-                try:
-                    print(
-                        f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
-                    self.control_robot_light()
-                    if self.last_command == 'AUTO' and self.command != 'AUTO':
-                        self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
-                        continue
-                    if self.command == 'AUTO':
-                        adjusted_speed_left = int((base_speed - self.heading) * self.speed)
-                        adjusted_speed_right = int((base_speed + self.heading) * self.speed)
-                        self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-                    elif self.direction == 'F':
-                        self.rvr.raw_motors(1, int((base_speed) * self.speed), 1, int((base_speed) * self.speed))
-                    elif self.direction == 'B':
-                        self.rvr.raw_motors(2, int((base_speed) * self.speed), 2, int((base_speed) * self.speed))
-                    elif self.direction == 'L':
-                        self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * self.speed), 1,
-                                            int((base_speed + turn_adjustment) * self.speed))
-                    elif self.direction == 'R':
-                        self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * self.speed), 1,
-                                            int((base_speed - turn_adjustment) * self.speed))
-                    elif self.direction == 'S':
-                        self.rvr.raw_motors(0, 0, 0, 0)
-                    else:
-                        print(f"Unknown command: {self.command}")
-                except Exception as e:
-                    print(f"Error in control_robot: {e}")
+            print(f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
+            self.control_robot_light()
+            base_speed = 101
+            turn_adjustment = 70
+            if self.last_command == 'AUTO' and self.command != 'AUTO':
+                self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
+                continue
+            if self.command == 'AUTO':
+                adjusted_speed_left = int((base_speed - self.heading) * self.speed)
+                adjusted_speed_right = int((base_speed + self.heading) * self.speed)
+                self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+            elif self.direction == 'F':
+                self.rvr.raw_motors(1, int((base_speed) * self.speed), 1, int((base_speed) * self.speed))
+            elif self.direction == 'B':
+                self.rvr.raw_motors(2, int((base_speed) * self.speed), 2, int((base_speed) * self.speed))
+            elif self.direction == 'L':
+                self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * self.speed), 1,
+                                    int((base_speed + turn_adjustment) * self.speed))
+            elif self.direction == 'R':
+                self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * self.speed), 1,
+                                    int((base_speed - turn_adjustment) * self.speed))
+            elif self.direction == 'S':
+                self.rvr.raw_motors(0, 0, 0, 0)
+            else:
+                print(f"Unknown command: {self.command}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
+        #except Exception as e:
+            #print(f"Error in control_robot: {e}")
 
     def sensor_updater(self, client_socket):
         while not self.exit_flag:
