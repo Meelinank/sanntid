@@ -138,11 +138,11 @@ class SpheroServer:
                     break
                 print(f"Received message: {message}")
                 try:
-                    command_data = json.loads(message)
-                    self.command = command_data.get("command","MANUAL")
-                    self.direction = command_data.get("direction","S")
-                    self.heading = command_data.get("heading", 0)
-                    self.speed   = command_data.get("speed", 1)
+                    data = json.loads(message)
+                    self.command    = data.get("command","MANUAL")
+                    self.direction  = data.get("direction","S")
+                    self.heading    = data.get("heading", 0)
+                    self.speed      = data.get("speed", 1)
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                 except json.JSONDecodeError:
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
@@ -150,7 +150,6 @@ class SpheroServer:
             print(f"Error handling client: {e}")
         finally:
             client_socket.close()
-            print("Client socket closed")
     def control_robot(self):
         while not self.exit_flag:
             base_speed      = 101
@@ -219,10 +218,8 @@ class SpheroServer:
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
-                if self.command in ['F', 'B', 'FL', 'FR', 'BL', 'BR']:
+                if self.command == 'MANUAL':
                     self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
-                elif self.command == 'S':
-                    self.rvr.led_control.set_all_leds_color(color=Colors.red)
                 elif self.command == 'AUTO':
                     self.rvr.led_control.set_all_leds_color(color=Colors.green)
                 else:
