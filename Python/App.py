@@ -243,11 +243,11 @@ class SpheroServer:
         self.rvrYaw   = self.get_nested(imu_data, "IMU"          , "Yaw"  )
         self.rvrRoll  = self.get_nested(imu_data, "IMU"          , "Roll" )
     def rvrAmbientLight_handler(self,ambient_light_data):
-        self.rvrAmbientLight = self.get_nested(ambient_light_data, "AmbientLight", "Light")  
+        self.rvrAmbientLight = ambient_light_data.get("AmbientLight")#self.get_nested(ambient_light_data, "AmbientLight", "Light")  
     def rvrAccel_handler(self,accel_data):
-        self.rvrX = accel_data.get(accel_data, "X")
-        self.rvrY = accel_data.get(accel_data, "Y")
-        self.rvrZ = accel_data.get(accel_data, "Z")
+        self.rvrX = self.get_nested(accel_data,'Accelerometer', "X")
+        self.rvrY = self.get_nested(accel_data,'Accelerometer', "Y")
+        self.rvrZ = self.get_nested(accel_data,'Accelerometer', "Z")
     def get_nested(self, dictionary, *keys):
         if keys and dictionary:
             element  = keys[0]
