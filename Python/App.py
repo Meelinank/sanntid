@@ -139,7 +139,7 @@ class SpheroServer:
             print(f"Received message: {message}")
             try:
                 data = json.loads(message)
-                self.command    = data.get("command","MANUAL")
+                self.command    = data.get("command"  ,"MANUAL")
                 self.direction  = data.get("direction","S")
                 self.heading    = max(-100,min(100,data.get("heading", 0)))
                 self.speed      = data.get("speed", 1)
@@ -188,7 +188,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                # self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
                 self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=1000)
 
