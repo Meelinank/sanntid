@@ -166,9 +166,6 @@ class SpheroServer:
             self.control_robot_light()
             base_speed = 101
             turn_adjustment = 70
-            if self.last_command == 'AUTO' and self.command != 'AUTO':
-                self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
-                continue
             if self.command == 'AUTO':
                 adjusted_speed_left = int((base_speed - self.heading) * self.speed)
                 adjusted_speed_right = int((base_speed + self.heading) * self.speed)
