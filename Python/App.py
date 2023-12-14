@@ -7,6 +7,8 @@ from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
 from sphero_sdk import RvrStreamingServices
+from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
+
 class SpheroServer:
     def __init__(self):
         try:
@@ -189,7 +191,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.encoders, handler=self.rvrEncoders_handler)
-                self.rvr.on_battery_voltage_state_change_notify(handler=self.rvrBatteryPercentage_handler)
+                self.rvr.get_battery_percentage(handler=rvrBatteryPercentage_handler)
                 self.rvr.sensor_control.start(interval=1000)
 
                 while not self.exit_flag:
@@ -230,7 +232,7 @@ class SpheroServer:
             print(f"Error stopping RVR: {e}")
     #sensor handlers
     def rvrBatteryPercentage_handler(self,battery_percentage):
-        self.rvrBatteryPercentage = battery_percentage
+        self.rvrBatteryPercentage = battery_percentage.get("state")
     def rvrColor_handler(self,color_data):
         R = self.get_nested(color_data, "ColorDetection", "R")
         G = self.get_nested(color_data, "ColorDetection", "G")
