@@ -81,7 +81,7 @@ class SpheroServer:
         
         #video_thread.join()
         command_thread.join()
-        #sensor_thread.join()
+        sensor_thread.join()
         robot_thread.join()
     def video_server(self):
         
@@ -131,7 +131,6 @@ class SpheroServer:
                     break
                 stream.seek(0)
                 stream.truncate()
-                time.sleep(0.1)  # Adjust as needed
         except Exception as e:
             print(f"Error capturing video: {e}")
     def handle_client(self, client_socket):
