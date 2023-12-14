@@ -131,6 +131,7 @@ class SpheroServer:
                     break
                 stream.seek(0)
                 stream.truncate()
+                time.sleep(0.1)  # Adjust as needed
         except Exception as e:
             print(f"Error capturing video: {e}")
     def handle_client(self, client_socket):
@@ -145,7 +146,7 @@ class SpheroServer:
                 self.direction  = data.get("direction","S")
                 self.heading    = max(-100,min(100,data.get("heading", 0)))
                 self.speed      = data.get("speed", 1)
-                print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
+                print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
             except json.JSONDecodeError:
                 print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
     def control_robot(self):
@@ -156,7 +157,7 @@ class SpheroServer:
                 base_speed      = 101
                 turn_adjustment = 70
                 try:
-                    print(f"Executing command: {self.command}")
+                    print(f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
                     self.control_robot_light()
                     if self.last_command == 'AUTO' and self.command != 'AUTO':
                         self.rvr.raw_motors(0, 0, 0, 0)  # Stop the robot immediately
@@ -192,7 +193,7 @@ class SpheroServer:
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccel_handler)
                 self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-                self.rvr.sensor_control.start(interval=1000)
+                self.rvr.sensor_control.start(interval=10)
                 sensor_data = {
                     "X":            self.rvrX,
                     "Y":            self.rvrY,
