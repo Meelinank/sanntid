@@ -54,9 +54,12 @@ class SpheroServer:
         self.rvrYaw                 = None
         self.rvrRoll                = None
         self.last_command           = None
+<<<<<<< HEAD
         self.vidconnection          = False
         self.commandconnection      = False
         self.sensorconnection       = False
+=======
+>>>>>>> 0b1e5d83dad6d0f44e5f881d8e3c2b35de1a2863
     def __del__(self):
         self.command_socket.close()
         self.video_socket.close()
@@ -89,7 +92,10 @@ class SpheroServer:
                 client_socket, addr = self.video_socket.accept()
                 print("Video client connected:", addr)
                 self.process_video_stream(client_socket)
+<<<<<<< HEAD
                 self.vidconnection = True
+=======
+>>>>>>> 0b1e5d83dad6d0f44e5f881d8e3c2b35de1a2863
             except Exception as e:
                 print(f"Video server error: {e}")
                 time.sleep(1)
@@ -100,12 +106,18 @@ class SpheroServer:
                 print("Command client connected:", addr)
                 self.handle_client(client_socket)
                 self.last_command = self.command
+<<<<<<< HEAD
                 self.commandconnection = True
+=======
+>>>>>>> 0b1e5d83dad6d0f44e5f881d8e3c2b35de1a2863
 
                 client_socket, addr = self.sensor_socket.accept()
                 print("Sensor client connected:", addr)
                 self.sensor_updater(client_socket)
+<<<<<<< HEAD
                 self.sensorconnection = True
+=======
+>>>>>>> 0b1e5d83dad6d0f44e5f881d8e3c2b35de1a2863
             except Exception as e:
                 print(f"Command server error: {e}")
                 time.sleep(1)      
@@ -157,7 +169,11 @@ class SpheroServer:
         finally:
             client_socket.close()
     def control_robot(self):
+<<<<<<< HEAD
         while not self.exit_flag and self.vidconnection == True and self.commandconnection == True and self.sensorconnection == True:
+=======
+        while not self.exit_flag:
+>>>>>>> 0b1e5d83dad6d0f44e5f881d8e3c2b35de1a2863
             base_speed      = 101
             turn_adjustment = 70
             try:
