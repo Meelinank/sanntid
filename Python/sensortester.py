@@ -19,6 +19,9 @@ def main():
     time.sleep(1)
     rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
     while True:
+        i = 0
+        print(i)
+        i = i + 1
         try:
             rvr.on_battery_voltage_state_change_notify(handler=battery_voltage_state_change_handler)
         except KeyboardInterrupt:
