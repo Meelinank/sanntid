@@ -145,7 +145,7 @@ class SpheroServer:
                     data = json.loads(message)
                     self.command    = data.get("command","MANUAL")
                     self.direction  = data.get("direction","S")
-                    self.heading    = data.get("heading", 0)
+                    self.heading    = max(-100,min(100,data.get("heading", 0)))
                     self.speed      = data.get("speed", 1)
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                 except json.JSONDecodeError:
