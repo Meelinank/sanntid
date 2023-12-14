@@ -128,9 +128,9 @@ class SpheroServer:
                     break
                 stream.seek(0)
                 stream.truncate()
-        finally:
-            client_socket.close()
-            print("Video streaming stopped")
+                finally:
+                    client_socket.close()
+                    print("Video streaming stopped")
     def handle_client(self, client_socket):
         try:
             while not self.exit_flag:
@@ -147,10 +147,8 @@ class SpheroServer:
                     print(f"Decoded command: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
                 except json.JSONDecodeError:
                     print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")     
-        except Exception as e:
-            print(f"Error handling client: {e}")
-        finally:
-            client_socket.close()
+                finally:
+                    client_socket.close()
     def control_robot(self):
         try:
             while not self.exit_flag:
@@ -184,8 +182,7 @@ class SpheroServer:
                     print(f"Error in control_robot: {e}")
         except Exception as e:
             print(f"Error in control_robot: {e}")
-        finally:
-            client_socket.close()
+
     def sensor_updater(self, client_socket):
         try: 
             while not self.exit_flag:
@@ -218,10 +215,11 @@ class SpheroServer:
                 except Exception as e:
                     print(f"Error in sensor_updater: {e}")
                     time.sleep(1)
+                finally:
+                    client_socket.close()
         except Exception as e:
             print(f"Error in sensor_updater: {e}")
-        finally:
-            client_socket.close()
+        
     def control_robot_light(self):
         try:
             if self.command != self.last_command:
@@ -267,8 +265,7 @@ class SpheroServer:
         return None
 if __name__ == "__main__":
     server = SpheroServer()
-    while True:
-        try:
-            server.start_server()
-        finally:
-            server.stop() # Stop the server on exit
+    try:
+        server.start_server()
+    finally:
+        server.stop() # Stop the server on exit
