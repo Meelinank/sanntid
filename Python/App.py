@@ -115,8 +115,6 @@ class SpheroServer:
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
         try:
-            if client_socket.stillconnected() is false:
-                    self.exit_flag = True
             for frame in self.camera.capture_continuous(stream, format="jpeg", use_video_port=True, quality=20):
                 if self.exit_flag:
                     break
@@ -175,14 +173,10 @@ class SpheroServer:
                         self.rvr.raw_motors(1, int((base_speed)*self.speed), 1, int((base_speed)*self.speed))
                     elif self.direction == 'B':
                         self.rvr.raw_motors(2, int((base_speed)*self.speed), 2, int((base_speed)*self.speed))
-                    elif self.direction == 'FL':
+                    elif self.direction == 'L':
                         self.rvr.raw_motors(1, int((base_speed - turn_adjustment)*self.speed), 1, int((base_speed + turn_adjustment)*self.speed))
-                    elif self.direction == 'FR':
+                    elif self.direction == 'R':
                         self.rvr.raw_motors(1, int((base_speed + turn_adjustment)*self.speed), 1, int((base_speed - turn_adjustment)*self.speed))
-                    elif self.direction == 'BL':
-                        self.rvr.raw_motors(2, int((base_speed - turn_adjustment)*self.speed), 2, int((base_speed + turn_adjustment)*self.speed))
-                    elif self.direction == 'BR':
-                        self.rvr.raw_motors(2, int((base_speed + turn_adjustment)*self.speed), 2, int((base_speed - turn_adjustment)*self.speed))
                     elif self.direction == 'S':
                         self.rvr.raw_motors(0, 0, 0, 0)
                     else:
