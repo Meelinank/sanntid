@@ -11,5 +11,6 @@
 #
 # By default this script does nothing.
 
-sudo python3 /home/pi/santid/Python/iphandover.py &
+sudo python3 /home/pi/sanntid/Python/iphandover.py&
+sudo python3 /home/pi/sanntid/Python/App.py&
 exit 0

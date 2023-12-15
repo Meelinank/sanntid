@@ -33,6 +33,31 @@ This library is included in the project file and requires no further installatio
 ## HARDWARE
 The hardware used in this project is a Raspberry Pi zero and a Sphero RVR.
 
+## INSTALLATION
+
+### Sphero Pi
+update rasbian
+``` sudo apt update```
+```sudo apt dist-upgrade```
+```sudo apt clean```
+```sudo reboot  ```
+
+Install the sphero library
+```git clone https://github.com/sphero-inc/sphero-sdk-raspberrypi-python.git```
+navigate and execute first time setup
+```cd ~/sphero-sdk-raspberrypi-python```
+```./first-time-setup.sh```
+run through the installer
+
+git clone the project repo onto the raspberry pi
+```git clone https://github.com/Meelinank/sanntid.git```
+
+find the iphandover file and insert your discord webhook should you want it
+```nano sanntid/Python/iphandover.py```
+
+run this command to update bootscript to run discord ip handler and python
+```sudo cp sanntid/Python/rc.local /etc/rc.local```
+the rvr should now properly start on boot.
 ## UML?
 
 

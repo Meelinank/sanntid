@@ -14,7 +14,7 @@ def get_ip():
 
 
 
-webhookURL = 'https://discord.com/api/webhooks/1178373329044914196/YNtaZku0tmbM9Iy0MSNHoqgoY6S2XJ4qasBynLkYw21TQm4VY3TR5P7fqTFKcMkhCopy'
+webhookURL = 'DISCORD WEBHOOK URL'
 hostname = socket.gethostname()
 localIP = get_ip()#socket.gethostbyname(hostname)
 
