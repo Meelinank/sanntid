@@ -16,20 +16,6 @@ class SpheroServer:
         self.init_sensor_control()
         self.setup_threading_variables()
         self.exit_flag = False
-        self.command = None
-        self.direction = None
-        self.heading = None
-        self.speed = None
-        self.rvrBatteryPercentage = None
-        self.rvrColor = None
-        self.rvrAmbientLight = None
-        self.rvrX = None
-        self.rvrY = None
-        self.rvrZ = None
-        self.rvrPitch = None
-        self.rvrYaw = None
-        self.rvrRoll = None
-        self.last_command = None
 
     def init_camera(self):
         try:
@@ -65,6 +51,19 @@ class SpheroServer:
     def setup_threading_variables(self):
         self.exit_flag = False
         self.command = None
+        self.direction = None
+        self.heading = None
+        self.speed = None
+        self.rvrBatteryPercentage = None
+        self.rvrColor = None
+        self.rvrAmbientLight = None
+        self.rvrX = None
+        self.rvrY = None
+        self.rvrZ = None
+        self.rvrPitch = None
+        self.rvrYaw = None
+        self.rvrRoll = None
+        self.last_command = None
         self.sensor_data = {}
         self.lock = threading.Lock()
 
@@ -159,7 +158,7 @@ class SpheroServer:
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccelhandler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
+                #self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
                 #print(f"Sending sensor data: {sensor_json}")
                 client_socket.sendall(sensor_json.encode())
                 time.sleep(0.01)
@@ -201,32 +200,46 @@ class SpheroServer:
         except Exception as e:
             print(f"Error in control_robot: {e}")
     def rvrBatteryPercentage_handler(self, battery_percentage):
+        new_data = battery_percentage.get("percentage")
         with self.lock:
-            self.sensor_data["Battery"] = battery_percentage.get("percentage")
+            self.sensor_data["Battery"] = new_data
+
     def rvrColor_handler(self, color_data):
-        with self.lock:
-            self.sensor_data["ColorSensor"] = {
+        new_data = {
+            "ColorSensor": {
                 "R": color_data.get("ColorDetection", {}).get("R"),
                 "G": color_data.get("ColorDetection", {}).get("G"),
                 "B": color_data.get("ColorDetection", {}).get("B")
             }
+        }
+        with self.lock:
+            self.sensor_data["ColorSensor"] = new_data
+
     def rvrIMU_handler(self, imu_data):
-        with self.lock:
-            self.sensor_data["IMU"] = {
+        new_data = {
+            "IMU": {
                 "Pitch": imu_data.get("IMU", {}).get("Pitch"),
-                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"  ),
-                "Roll" : imu_data.get("IMU", {}).get("Roll" )
+                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"),
+                "Roll" : imu_data.get("IMU", {}).get("Roll")
             }
-    def rvrAccelhandler(self, accelerometer_data):
+        }
         with self.lock:
-            self.sensor_data["Acceleration"] = {
+            self.sensor_data["IMU"] = new_data
+
+    def rvrAmbientLight_handler(self, ambient_light_data):
+        new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
+        with self.lock:
+            self.sensor_data["AmbientLight"] = new_data
+    def rvrAccelhandler(self, accelerometer_data):
+        new_data = {
+            "Acceleration": {
                 "X": accelerometer_data.get("Acceleration", {}).get("X"),
                 "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
                 "Z": accelerometer_data.get("Acceleration", {}).get("Z")
             }
-    def rvrAmbientLight_handler(self, ambient_light_data):
+        }
         with self.lock:
-            self.sensor_data["AmbientLight"] = ambient_light_data.get("AmbientLight", {}).get("Light")
+            self.sensor_data["Acceleration"] = new_data
     def control_robot_light(self):
         try:
             with self.lock:
