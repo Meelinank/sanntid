@@ -64,8 +64,9 @@ class SpheroServer:
 
             # Request battery percentage
             self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-
+            
             # Start sensor data streaming
+            self.rvr.enable_color_detection(is_enabled=True)
             self.rvr.sensor_control.start(interval=1000)
         except Exception as e:
             print(f"Failed to initialize sensor control: {e}")
@@ -235,9 +236,12 @@ class SpheroServer:
     def rvrIMU_handler(self, imu_data):
         new_data = {
             "IMU": {
-                "Pitch": imu_data.get("IMU", {}).get("Pitch"),
-                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"),
-                "Roll" : imu_data.get("IMU", {}).get("Roll")
+                "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
+                "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
+                "Roll" : imu_data.get("IMU",            {}).get("Roll "),
+                "X"    : imu_data.get('Accelerometer',  {}).get("X"    ),
+                "Y"    : imu_data.get('Accelerometer',  {}).get("Y"    ),
+                "Z"    : imu_data.get('Accelerometer',  {}).get("Z"    )
             }
         }
         with self.lock:
@@ -247,17 +251,6 @@ class SpheroServer:
         new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
         with self.lock:
             self.sensor_data["AmbientLight"] = new_data
-
-    def rvrAccel_handler(self, accelerometer_data):
-        new_data = {
-            "Acceleration": {
-                "X": accelerometer_data.get("Acceleration", {}).get("X"),
-                "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
-                "Z": accelerometer_data.get("Acceleration", {}).get("Z")
-            }
-        }
-        with self.lock:
-            self.sensor_data["Acceleration"] = new_data
 
     def stop(self):
         self.exit_flag = True
