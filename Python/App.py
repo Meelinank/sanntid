@@ -152,7 +152,6 @@ class SpheroServer:
             message = client_socket.recv(1024).decode('utf-8')
             if not message:
                 break
-            print(f"Received message: {message}")
             try:
                 data = json.loads(message)
                 with self.lock:  # Use lock to safely update shared variables
