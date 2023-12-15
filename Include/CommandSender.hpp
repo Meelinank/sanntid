@@ -11,13 +11,13 @@ public:
     void sendCommand(const std::string& rawMessage);
     bool isConnected() const;
     void reconnect();
+    bool connectSocket();
 
 private:
     boost::asio::io_service& io_service; // Store reference to io_service
     std::string server;
     std::string port;
     boost::asio::ip::tcp::socket command_socket;
-    bool connectSocket();
 };
 
 #endif //SANNTID_COMMANDSENDER_HPP
