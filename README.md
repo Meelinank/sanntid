@@ -13,7 +13,8 @@ We were free to choose communication protocol and format. (unsure if this is nee
 The project is written using mainly C++ and python.
 
 ### C++:
-The C++ code works by reading input from a user and sending commands to a Raspberry Pi using TCP. . . 
+The C++ code works by reading input from a user and sending commands to a Raspberry Pi using TCP.\
+
 
 Class descriptions:
 
@@ -29,6 +30,8 @@ The data received is then displayed in the UI in the main function, and is updat
 The FrameReceiver class is responsible for receiving frames from the Raspberry Pi.\
 The frames are then displayed in the UI in the main function.
 
+Main function:\
+In the main function, the UI is initialized, and the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
 
 The project uses multiple libraries such as: "boost-asio", "catch2", "sdl2", "opencv4" and "nlohmann-json".\
 These libraries are automatically installed by the project by CMake using vcpkg.
@@ -90,7 +93,7 @@ sudo reboot
 **Run this command to update bootscript to run discord ip handler and python**\
 ```sudo cp sanntid/Python/rc.local /etc/rc.local```\
 the rvr should now properly start on boot.
-## UML?
+
 
 
 
