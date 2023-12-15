@@ -1,5 +1,6 @@
 ## AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
 ![Sphero rvr](images/readmeImage.png)
+
 This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer.\
 The project consist of creating software that enables communication from a PC using a Raspberry Pi and a Sphero RVR.
 
