@@ -54,10 +54,6 @@ class SpheroServer:
                 handler=self.rvrIMU_handler
             )
             self.rvr.sensor_control.add_sensor_data_handler(
-                service=RvrStreamingServices.accelerometer,
-                handler=self.rvrAccel_handler
-            )
-            self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.ambient_light,
                 handler=self.rvrAmbientLight_handler
             )
