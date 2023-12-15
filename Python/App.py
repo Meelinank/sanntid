@@ -158,8 +158,8 @@ class SpheroServer:
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccelhandler)
                 #self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
-                #self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-                #print(f"Sending sensor data: {sensor_json}")
+                self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
+                print(f"Sending sensor data: {sensor_json}")
                 client_socket.sendall(sensor_json.encode())
                 time.sleep(0.01)
             except Exception as e:
