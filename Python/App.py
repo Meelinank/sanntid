@@ -60,6 +60,10 @@ class SpheroServer:
                 handler=self.rvrAmbientLight_handler
             )
 
+            self.rvr.sensor_control.add_sensor_data_handler(
+                service=RvrStreamingServices.accelerometer,
+                handler=self.rvrAccelerometer_handler
+            )
             # Request battery percentage
             self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
             
@@ -236,14 +240,22 @@ class SpheroServer:
             "IMU": {
                 "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
                 "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
-                "Roll" : imu_data.get("IMU",            {}).get("Roll" ),
+                "Roll" : imu_data.get("IMU",            {}).get("Roll" )
+            }
+        }
+        with self.lock:
+            self.sensor_data["IMU"] = new_data
+
+    def rvrAccelerometer_handler(self, imu_data):
+        new_data = {
+            "Accelerometer": {
                 "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
                 "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
                 "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )
             }
         }
         with self.lock:
-            self.sensor_data["IMU"] = new_data
+            self.sensor_data["Accelerometer"] = new_data
 
     def rvrAmbientLight_handler(self, ambient_light_data):
         new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
