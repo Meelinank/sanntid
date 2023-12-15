@@ -6,42 +6,14 @@ import json
 from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
-from sphero_sdk import RvrStreamingServices
-from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
-
 
 class SpheroServer:
     def __init__(self):
-        try:
-            self.camera = PiCamera()
-            self.camera.resolution = (350, 250)  # Lower resolution for faster processing
-            self.camera.framerate = 10  # Adjust as needed
-        except Exception as e:
-            print(f"Failed to initialize camera: {e}")
-
-        try:
-            self.rvr = SpheroRvrObserver()
-            self.rvr.wake()
-        except Exception as e:
-            print(f"Failed to initialize Sphero RVR: {e}")
-
-        # Video streaming socket
-        self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.video_socket.bind(('10.25.45.112', 8000))
-        self.video_socket.listen(1)
-        # Command handling socket
-        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.command_socket.bind(('10.25.45.112', 8001))
-        self.command_socket.listen(1)
-
-        # sensor handling socket
-        self.sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sensor_socket.bind(('10.25.45.112', 8002))
-        self.sensor_socket.listen(1)
-
-        self.rvr.sensor_control.start(interval=100)
-        self.rvr.enable_color_detection(is_enabled=True)
-        self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
+        self.init_camera()
+        self.init_rvr()
+        self.setup_sockets()
+        self.init_sensor_control()
+        self.setup_threading_variables()
         self.exit_flag = False
         self.command = None
         self.direction = None
@@ -49,9 +21,7 @@ class SpheroServer:
         self.speed = None
         self.rvrBatteryPercentage = None
         self.rvrColor = None
-        self.rvrTemps = None
         self.rvrAmbientLight = None
-        self.rvrEncoders = None
         self.rvrX = None
         self.rvrY = None
         self.rvrZ = None
@@ -59,36 +29,64 @@ class SpheroServer:
         self.rvrYaw = None
         self.rvrRoll = None
         self.last_command = None
-        self.vidconnection = None
-        self.commandconnection = None
-        self.sensorconnection = None
 
-    def __del__(self):
-        self.command_socket.close()
-        self.video_socket.close()
-        self.sensor_socket.close()
+    def init_camera(self):
+        try:
+            self.camera = PiCamera()
+            self.camera.resolution = (350, 250)
+            self.camera.framerate = 10
+        except Exception as e:
+            print(f"Failed to initialize camera: {e}")
+
+    def init_rvr(self):
+        try:
+            self.rvr = SpheroRvrObserver()
+            self.rvr.wake()
+        except Exception as e:
+            print(f"Failed to initialize Sphero RVR: {e}")
+
+    def setup_sockets(self):
+        self.video_socket = self.create_socket(8000)
+        self.command_socket = self.create_socket(8001)
+        self.sensor_socket = self.create_socket(8002)
+
+    def create_socket(self, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(('10.25.45.112', port))
+        s.listen(1)
+        return s
+
+    def init_sensor_control(self):
+        self.rvr.sensor_control.start(interval=100)
+        self.rvr.enable_color_detection(is_enabled=True)
+        self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
+
+    def setup_threading_variables(self):
+        self.exit_flag = False
+        self.command = None
+        self.sensor_data = {}
+        self.lock = threading.Lock()
 
     def start_server(self):
-        print("Starting video   server...")
-        video_thread = threading.Thread(target=self.video_server, daemon=True)
+        print("Starting video server...")
+        video_thread = threading.Thread(target=self.video_server)
         video_thread.start()
 
         print("Starting command server...")
         command_thread = threading.Thread(target=self.command_server)
         command_thread.start()
 
-        print("Starting sensor  server...")
+        print("Starting sensor server...")
         sensor_thread = threading.Thread(target=self.sensor_server)
         sensor_thread.start()
-        """
-        print("Starting robot control...")
+
+        print("Awaiting Connection...")
         robot_thread = threading.Thread(target=self.control_robot)
         robot_thread.start()
-        """
-        # video_thread.join()
+
         command_thread.join()
         sensor_thread.join()
-        #robot_thread.join()
+        robot_thread.join()
 
     def video_server(self):
         while not self.exit_flag:
@@ -99,29 +97,6 @@ class SpheroServer:
             except Exception as e:
                 print(f"Video server error: {e}")
                 time.sleep(1)
-
-    def command_server(self):
-        while not self.exit_flag:
-            try:
-                client_socket, addr = self.command_socket.accept()
-                print("Command client connected:", addr)
-                self.handle_client(client_socket)
-                self.last_command = self.command
-                self.commandconnection = True
-            except Exception as e:
-                print(f"Command server error: {e}")
-                time.sleep(1)
-
-    def sensor_server(self):
-        while not self.exit_flag:
-            try:
-                client_socket, addr = self.sensor_socket.accept()
-                print("Sensor client connected:", addr)
-                self.sensor_updater(client_socket)
-            except Exception as e:
-                print(f"Sensor server error: {e}")
-                time.sleep(1)
-
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
         try:
@@ -140,146 +115,141 @@ class SpheroServer:
                 stream.truncate()
         except Exception as e:
             print(f"Error capturing video: {e}")
-
+    def command_server(self):
+        while not self.exit_flag:
+            try:
+                client_socket, addr = self.command_socket.accept()
+                print("Command client connected:", addr)
+                self.handle_client(client_socket)
+                self.last_command = self.command
+            except Exception as e:
+                print(f"Command server error: {e}")
+                time.sleep(1)
     def handle_client(self, client_socket):
         while not self.exit_flag:
             message = client_socket.recv(1024).decode('utf-8')
             if not message:
                 break
             print(f"Received message: {message}")
-            
             try:
                 data = json.loads(message)
-                self.command = data.get("command")
-                self.direction = data.get("direction")
+                self.command = data.get("command", "MANUAL")
+                self.direction = data.get("direction", "S")
                 self.heading = max(-100, min(100, data.get("heading", 0)))
-                self.speed = data.get("speed")
-                #print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
-
+                self.speed = data.get("speed", 1)
+                print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
             except json.JSONDecodeError:
                 print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
-            self.control_robot()
-            self.control_robot_light()
-    def control_robot(self):
-        #try:
-            #while not self.exit_flag:
-        try:
-            print(f"Executing command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
-            
-            base_speed = 101
-            turn_adjustment = 70
-            if self.command == 'AUTO':
-                adjusted_speed_left = int((base_speed - self.heading) * self.speed)
-                adjusted_speed_right = int((base_speed + self.heading) * self.speed)
-                self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
-            elif self.command == 'MANUAL' and self.direction == 'F':
-                self.rvr.raw_motors(1, int((base_speed) * self.speed), 1, int((base_speed) * self.speed))
-            elif self.command == 'MANUAL' and self.direction == 'B':
-                self.rvr.raw_motors(2, int((base_speed) * self.speed), 2, int((base_speed) * self.speed))
-            elif self.command == 'MANUAL' and self.direction == 'L':
-                self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * self.speed), 1,
-                                    int((base_speed + turn_adjustment) * self.speed))
-            elif self.command == 'MANUAL' and self.direction == 'R':
-                self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * self.speed), 1,
-                                    int((base_speed - turn_adjustment) * self.speed))
-            elif self.direction == 'S':
-                self.rvr.raw_motors(0, 0, 0, 0)
-            else:
-                print(f"Unknown command: {self.command}")
-        except Exception as e:
-            print(f"Error in control_robot: {e}")
-        #except Exception as e:
-            #print(f"Error in control_robot: {e}")
-
+    def sensor_server(self):
+        while not self.exit_flag:
+            try:
+                client_socket, addr = self.sensor_socket.accept()
+                print("Sensor client connected:", addr)
+                self.sensor_updater(client_socket)
+            except Exception as e:
+                print(f"Sensor server error: {e}")
+                time.sleep(1)
     def sensor_updater(self, client_socket):
         while not self.exit_flag:
             try:
-
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection,
-                                                                handler=self.rvrColor_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu,
-                                                                handler=self.rvrIMU_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer,
-                                                                handler=self.rvrAccel_handler)
-                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light,
-                                                                handler=self.rvrAmbientLight_handler)
+                with self.lock:
+                    sensor_json = json.dumps(self.sensor_data) + "\n"
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.imu, handler=self.rvrIMU_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.color_detection, handler=self.rvrColor_handler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.accelerometer, handler=self.rvrAccelhandler)
+                self.rvr.sensor_control.add_sensor_data_handler(service=RvrStreamingServices.ambient_light, handler=self.rvrAmbientLight_handler)
                 self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-
-                sensor_data = {
-                    "X": self.rvrX,
-                    "Y": self.rvrY,
-                    "Z": self.rvrZ,
-                    "pitch": self.rvrPitch,
-                    "yaw": self.rvrYaw,
-                    "roll": self.rvrRoll,
-                    "ColorSensor": self.rvrColor,
-                    "AmbientLight": self.rvrAmbientLight,
-                    "Battery": self.rvrBatteryPercentage
-                    # include any other sensor data here
-                }
-                sensor_json = json.dumps(sensor_data) + "\n"  # Add newline character
-                print(f"Sending sensor data:{sensor_json}")
                 client_socket.sendall(sensor_json.encode())
                 time.sleep(0.01)
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
                 time.sleep(1)
+    def control_robot(self):
+        base_speed = 101
+        turn_adjustment = 70
+        try:
+            while not self.exit_flag:
+                with self.lock:
+                    current_command   = self.command
+                    current_direction = self.direction
+                    current_heading   = self.heading
+                    current_speed     = self.speed
+                if current_command is None:
+                    continue
+                print(
+                    f"Executing command: {current_command}, Direction: {current_direction}, Heading: {current_heading}, Speed: {current_speed}")
+                self.control_robot_light()
+                if current_command == 'AUTO':
+                    adjusted_speed_left  = int((base_speed - current_heading) * current_speed)
+                    adjusted_speed_right = int((base_speed + current_heading) * current_speed)
+                    self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
+                elif current_direction == 'F':
+                    self.rvr.raw_motors(1, int(base_speed * current_speed), 1, int(base_speed * current_speed))
+                elif current_direction == 'B':
+                    self.rvr.raw_motors(2, int(base_speed * current_speed), 2, int(base_speed * current_speed))
+                elif current_direction == 'L':
+                    self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * current_speed), 1,int((base_speed + turn_adjustment) * current_speed))
+                elif current_direction == 'R':
+                    self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * current_speed), 1,int((base_speed - turn_adjustment) * current_speed))
+                elif current_direction == 'S':
+                    self.rvr.raw_motors(0, 0, 0, 0)
+                else:
+                    print(f"Unknown command: {current_command}")
 
+        except Exception as e:
+            print(f"Error in control_robot: {e}")
+    def rvrBatteryPercentage_handler(self, battery_percentage):
+        with self.lock:
+            self.sensor_data["Battery"] = battery_percentage.get("percentage")
+    def rvrColor_handler(self, color_data):
+        with self.lock:
+            self.sensor_data["ColorSensor"] = {
+                "R": color_data.get("ColorDetection", {}).get("R"),
+                "G": color_data.get("ColorDetection", {}).get("G"),
+                "B": color_data.get("ColorDetection", {}).get("B")
+            }
+    def rvrIMU_handler(self, imu_data):
+        with self.lock:
+            self.sensor_data["IMU"] = {
+                "Pitch": imu_data.get("IMU", {}).get("Pitch"),
+                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"  ),
+                "Roll" : imu_data.get("IMU", {}).get("Roll" )
+            }
+    def rvrAccelhandler(self, accelerometer_data):
+        with self.lock:
+            self.sensor_data["Acceleration"] = {
+                "X": accelerometer_data.get("Acceleration", {}).get("X"),
+                "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
+                "Z": accelerometer_data.get("Acceleration", {}).get("Z")
+            }
+    def rvrAmbientLight_handler(self, ambient_light_data):
+        with self.lock:
+            self.sensor_data["AmbientLight"] = ambient_light_data.get("AmbientLight", {}).get("Light")
     def control_robot_light(self):
         try:
-            if self.command != self.last_command:
-                if self.command == 'MANUAL':
-                    self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
-                elif self.command == 'AUTO':
-                    self.rvr.led_control.set_all_leds_color(color=Colors.green)
-                else:
-                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)
+            with self.lock:
+                current_command = self.command
+            if current_command is None:
+                return
+            if current_command == 'MANUAL':
+                self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
+            elif current_command == 'AUTO':
+                self.rvr.led_control.set_all_leds_color(color=Colors.green)
+            elif current_command == 'STOP':
+                self.rvr.led_control.set_all_leds_color(color=Colors.red)
+            else:
+                self.rvr.led_control.set_all_leds_color(color=Colors.blue)
         except Exception as e:
             print(f"Error in control_robot_light: {e}")
-
     def stop(self):
         self.exit_flag = True
         try:
             self.rvr.close()
         except Exception as e:
             print(f"Error stopping RVR: {e}")
-
-    # sensor handlers
-    def rvrBatteryPercentage_handler(self, battery_percentage):
-        self.rvrBatteryPercentage = battery_percentage.get("percentage")
-
-    def rvrColor_handler(self, color_data):
-        R = self.get_nested(color_data, "ColorDetection", "R")
-        G = self.get_nested(color_data, "ColorDetection", "G")
-        B = self.get_nested(color_data, "ColorDetection", "B")
-        self.rvrColor = [R, G, B]
-
-    def rvrIMU_handler(self, imu_data):
-        self.rvrPitch = self.get_nested(imu_data, "IMU", "Pitch")
-        self.rvrYaw = self.get_nested(imu_data, "IMU", "Yaw")
-        self.rvrRoll = self.get_nested(imu_data, "IMU", "Roll")
-
-    def rvrAmbientLight_handler(self, ambient_light_data):
-        layer1 = self.get_nested(ambient_light_data, "AmbientLight")
-        self.rvrAmbientLight = layer1.get("Light")
-
-    def rvrAccel_handler(self, accel_data):
-        self.rvrX = self.get_nested(accel_data, 'Accelerometer', "X")
-        self.rvrY = self.get_nested(accel_data, 'Accelerometer', "Y")
-        self.rvrZ = self.get_nested(accel_data, 'Accelerometer', "Z")
-
-    def get_nested(self, dictionary, *keys):
-        if keys and dictionary:
-            element = keys[0]
-            if element:
-                value = dictionary.get(element)
-                return value if len(keys) == 1 else self.get_nested(value, *keys[1:])
-        return None
-
-
 if __name__ == "__main__":
     server = SpheroServer()
     try:
         server.start_server()
     finally:
-        server.stop()  # Stop the server on exit
+        server.stop()

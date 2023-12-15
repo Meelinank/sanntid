@@ -1,57 +1,23 @@
-import os
-import sys
-import time
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
-
-from sphero_sdk import SpheroRvrObserver
-from sphero_sdk import BatteryVoltageStatesEnum as VoltageStates
-
-
-rvr = SpheroRvrObserver()
-
-
-def battery_percentage_handler(battery_percentage):
-    print('Battery percentage: ', battery_percentage)
-
-
-def battery_voltage_handler(battery_voltage_state):
-    print('Voltage state: ', battery_voltage_state)
-
-    state_info = '[{}, {}, {}, {}]'.format(
-        '{}: {}'.format(VoltageStates.unknown.name, VoltageStates.unknown.value),
-        '{}: {}'.format(VoltageStates.ok.name, VoltageStates.ok.value),
-        '{}: {}'.format(VoltageStates.low.name, VoltageStates.low.value),
-        '{}: {}'.format(VoltageStates.critical.name, VoltageStates.critical.value)
-    )
-    print('Voltage states: ', state_info)
-
-
-def main():
-    """ This program demonstrates how to retrieve the battery state of RVR.
-    """
-
-    try:
-        rvr.wake()
-
-        # Give RVR time to wake up
-        time.sleep(2)
-
-        rvr.get_battery_percentage(handler=battery_percentage_handler)
-
-        # Sleep for one second such that RVR has time to send data back
-        time.sleep(1)
-
-        rvr.get_battery_voltage_state(handler=battery_voltage_handler)
-
-        # Sleep for one second such that RVR has time to send data back
-        time.sleep(1)
-
-    except KeyboardInterrupt:
-        print('\nProgram terminated with keyboard interrupt.')
-
-    finally:
-        rvr.close()
-
-
-if __name__ == '__main__':
-    main()
+        self.rvr.sensor_control.start(interval=100)
+        self.rvr.enable_color_detection(is_enabled=True)
+        self.rvr.enable_battery_voltage_state_change_notify(is_enabled=True)
+        self.exit_flag = False
+        self.command = None
+        self.direction = None
+        self.heading = None
+        self.speed = None
+        self.rvrBatteryPercentage = None
+        self.rvrColor = None
+        self.rvrTemps = None
+        self.rvrAmbientLight = None
+        self.rvrEncoders = None
+        self.rvrX = None
+        self.rvrY = None
+        self.rvrZ = None
+        self.rvrPitch = None
+        self.rvrYaw = None
+        self.rvrRoll = None
+        self.last_command = None
+        self.vidconnection = None
+        self.commandconnection = None
+        self.sensorconnection = None
