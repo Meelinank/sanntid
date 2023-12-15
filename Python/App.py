@@ -84,11 +84,20 @@ class SpheroServer:
 
 
     def start_server(self):
-        self.bootScreen()
+        print(" ____________________________________________________________________________________ ")
+        print("|   _____                                 ___   _____                   _   _     _  |")
+        print("|  |  __ \                               / _ \ /  ___|                 | | (_)   | | |")
+        print("|  | |  \/_ __ _   _ _ __  _ __   ___   / /| | \ `--.  __ _ _ __  _ __ | |_ _  __| | |")
+        print("|  | | __| '__| | | | '_ \| '_ \ / _ \ / /_| |  `--. \/ _` | '_ \| '_ \| __| |/ _` | |")
+        print("|  | |_\ \ |  | |_| | |_) | |_) |  __/ \___  | /\__/ / (_| | | | | | | | |_| | (_| | |")
+        print("|   \____/_|   \__,_| .__/| .__/ \___|     |_/ \____/ \__,_|_| |_|_| |_|\__|_|\__,_| |")
+        print("|                   | |   | |                                                        |")
+        print("|                   |_|   |_|                                                        |")
+        print("|____________________________________________________________________________________|")
+        print("|                                                                                    |")
         print("| - Starting video server   ...                                                      |")
         video_thread = threading.Thread(target=self.video_server)
         video_thread.start()
-        
         print("|                                                                                    |")
         print("| - Starting command server ...                                                      |")
         command_thread = threading.Thread(target=self.command_server)
@@ -159,9 +168,9 @@ class SpheroServer:
                     self.direction = data.get("direction", "S")
                     self.heading = max(-100, min(100, data.get("heading", 0)))
                     self.speed = data.get("speed", 1)
-                print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
+                print(f"Decoded command:      {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
             except json.JSONDecodeError:
-                print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
+                print(f"Received bad message: {self.command},                              Heading: {self.heading}, Speed: {self.speed}")
 
     def sensor_server(self):
         while not self.exit_flag:
@@ -265,18 +274,6 @@ class SpheroServer:
         except Exception as e:
             print(f"Error stopping RVR: {e}")
 
-    def bootScreen(self):
-        print(" ____________________________________________________________________________________ ")
-        print("|   _____                                 ___   _____                   _   _     _  |")
-        print("|  |  __ \                               / _ \ /  ___|                 | | (_)   | | |")
-        print("|  | |  \/_ __ _   _ _ __  _ __   ___   / /| | \ `--.  __ _ _ __  _ __ | |_ _  __| | |")
-        print("|  | | __| '__| | | | '_ \| '_ \ / _ \ / /_| |  `--. \/ _` | '_ \| '_ \| __| |/ _` | |")
-        print("|  | |_\ \ |  | |_| | |_) | |_) |  __/ \___  | /\__/ / (_| | | | | | | | |_| | (_| | |")
-        print("|   \____/_|   \__,_| .__/| .__/ \___|     |_/ \____/ \__,_|_| |_|_| |_|\__|_|\__,_| |")
-        print("|                   | |   | |                                                        |")
-        print("|                   |_|   |_|                                                        |")
-        print("|____________________________________________________________________________________|")
-        print("|                                                                                    |")
 
 if __name__ == "__main__":
     server = SpheroServer()
