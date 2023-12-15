@@ -120,7 +120,8 @@ class SpheroServer:
         while not self.exit_flag:
             try:
                 client_socket, addr = self.video_socket.accept()
-                print("Video client connected:", addr)
+                print("|                                                                                    |")
+                print("| - Video   client connected: ", addr,"                                |")
                 self.process_video_stream(client_socket)
             except Exception as e:
                 print(f"Video server error: {e}")
@@ -147,10 +148,12 @@ class SpheroServer:
         finally:
             client_socket.close()
     def command_server(self):
-        while not self.exit_flag:
+        while not self.exit_flag:   
             try:
                 client_socket, addr = self.command_socket.accept()
-                print("Command client connected:", addr)
+                print("| - Command client connected: ", addr,"                                |")
+                print("|____________________________________________________________________________________|")
+                print(" ")
                 self.handle_client(client_socket)
             except Exception as e:
                 print(f"Command server error: {e}")
@@ -176,7 +179,7 @@ class SpheroServer:
         while not self.exit_flag:
             try:
                 client_socket, addr = self.sensor_socket.accept()
-                print("Sensor client connected:", addr)
+                print("| - Sensor  client connected: ", addr,"                                |")
                 self.sensor_updater(client_socket)
             except Exception as e:
                 print(f"Sensor server error: {e}")
