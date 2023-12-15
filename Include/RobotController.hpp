@@ -19,7 +19,7 @@ public:
 
 
 private:
-    float speed{};
+    float speed;
     FrameReceiver frameReceiver;
     CommandSender& commandSender;
     std::atomic<bool> running;
