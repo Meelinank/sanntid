@@ -84,12 +84,11 @@ the script has been slightly modified to fit this project.\
 
 ## HARDWARE
 **The hardware used in this project was:**
-- Raspberry Pi zero 
+- Raspberry Pi zero W 
 - sparkfun pi servohat https://www.sparkfun.com/products/15316
 - raspberry pi camera module v2
 - Sphero RVR.
-- A hard Flat tube was printed to avoid camera wobble while driving, look for file in CAD files
-
+- A plastic square ring was printed to avoid camera wobble while driving, look for file in CAD files
 
 ## INSTALLATION
 
