@@ -13,8 +13,8 @@ class SpheroServer:
         self.init_camera()
         self.init_rvr()
         self.setup_sockets()
-        self.init_sensor_control()
         self.setup_threading_variables()
+        self.init_sensor_control()
 
     def init_camera(self):
         try:
