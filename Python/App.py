@@ -226,12 +226,10 @@ class SpheroServer:
 
     def rvrColor_handler(self, color_data):
         new_data = {
-            "ColorSensor": {
                 "R": color_data.get("ColorDetection", {}).get("R"),
                 "G": color_data.get("ColorDetection", {}).get("G"),
                 "B": color_data.get("ColorDetection", {}).get("B")
             }
-        }
         with self.lock:
             self.sensor_data["ColorSensor"] = new_data
 
