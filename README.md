@@ -31,7 +31,10 @@ The FrameReceiver class is responsible for receiving frames from the Raspberry P
 The frames are then displayed in the UI in the main function.
 
 Main function:\
-In the main function, the UI is initialized, and the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
+In the main function the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
+The main function contains the UI, which is used to send commands to the RVR and display sensor data and frames.\
+The UI is made using cvui, and will present the user with a window containing buttons for manual and automatic mode,\
+and displays the sensor data. 
 
 The project uses multiple libraries such as: "boost-asio", "catch2", "sdl2", "opencv4" and "nlohmann-json".\
 These libraries are automatically installed by the project by CMake using vcpkg.
