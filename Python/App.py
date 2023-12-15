@@ -51,10 +51,10 @@ class SpheroServer:
                 service=RvrStreamingServices.color_detection,
                 handler=self.rvrColor_handler
             )
-            self.rvr.sensor_control.add_sensor_data_handler(
+            """self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.imu,
                 handler=self.rvrIMU_handler
-            )
+            )"""
             self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.ambient_light,
                 handler=self.rvrAmbientLight_handler
