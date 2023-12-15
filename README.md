@@ -1,4 +1,4 @@
-## AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
+# AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
 ![Sphero rvr](images/readmeImage.png)
 
 This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer.\
@@ -7,7 +7,11 @@ The project consist of creating software that enables communication from a PC us
 
 ## PROJECT REQUIREMENTS
 There had to be an established communication between the software on PC and the Sphero RVR and Raspberry PI.\
-We were free to choose communication protocol and format. (unsure if this is needed)
+We were free to choose communication protocol and format.\
+Both manual and autonomous driving for the Sphero RVR should be implemented.\
+It is also required to display runtime information about the Sphero RVR to the user.\
+A big portion of the code is written in c++,
+as required.
 
 
 ## SOFTWARE
