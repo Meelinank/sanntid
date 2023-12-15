@@ -63,21 +63,35 @@ void RobotController::processFrame(const cv::Mat& frame) {
         if (largestContourIndex != -1) {
             cv::Moments m = cv::moments(contours[largestContourIndex]);
             int cx = static_cast<int>(m.m10 / m.m00);
-            int heading = static_cast<int>(40 - 100 * (static_cast<float>(cx) / frame.cols));
+            int heading = static_cast<int>(70 - 140 * (static_cast<float>(cx) / frame.cols));
 
-            lastKnownHeading = heading; // Update last known heading
-            nlohmann::json j;
-            j["command"] = "AUTO";
-            j["heading"] = heading;
-            std::string jsonString = j.dump();
+            if (largestArea < 5000) { // Define AREA_THRESHOLD as per your requirement
+                // Object detected but not close enough
+                lastKnownHeading = heading;
+                nlohmann::json j;
+                j["command"] = "AUTO";
+                j["heading"] = heading;
+                j["speed"] = speed; // Use the speed value
+                std::string jsonString = j.dump();
 
-            std::cout << jsonString << std::endl;
-            commandSender.sendCommand(jsonString);
+                std::cout << jsonString << std::endl;
+                commandSender.sendCommand(jsonString);
+            } else {
+                // Object is close, stop the robot
+                nlohmann::json j;
+                j["command"] = "S"; // You might need to handle this command in your robot control logic
+                std::string jsonString = j.dump();
+
+                std::cout << jsonString << std::endl;
+                commandSender.sendCommand(jsonString);
+            }
         } else {
-            // Continue in the last known direction
+            // No object detected, or object lost
+            // Here, you can decide whether to stop or continue in the last known direction
             nlohmann::json j;
-            j["command"] = "AUTO";
+            j["command"] = "AUTO"; // or "AUTO" to continue in the last known direction
             j["heading"] = lastKnownHeading;
+            j["speed"] = 0.7; // Use the speed value
             std::string jsonString = j.dump();
 
             std::cout << jsonString << std::endl;

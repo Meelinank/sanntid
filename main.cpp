@@ -43,7 +43,7 @@ int main() {
             cvui::text(frame, 50, 10, "Camera Feed:", 0.8);
         }
         cvui::text(frame, 50, 410, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
-        cvui::trackbar(frame, 50, 430, 360, &speed, (float)0.5, (float)1.125);
+        cvui::trackbar(frame, 50, 430, 360, &speed, (float)0, (float)1);
 
         int key = cv::waitKey(20); // Check for key presses
 
@@ -75,7 +75,7 @@ int main() {
 
         // Display the last received (or stored) sensor data
         int yPos = 90;
-        for (auto& [key, value] : lastSensorData.items()) {
+        for (auto& [key, value] : lastSensorData .items()) {
             std::string text = key + ": " + value.dump();
             cvui::text(frame, 460, yPos, text, 0.4);
             yPos += 20;
@@ -86,22 +86,27 @@ int main() {
             cvui::text(frame, 260, 520, "Manual Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 255, 0)));
             nlohmann::json j;
             if (key == 119) {  // 'w' key for Forward
+                j["command"] = "MANUAL";
                 j["direction"] = "F";
                 j["speed"] = speed;
                 keyTimer = 0;
             } else if (key == 97) {  // 'a' key for Left
-                j["direction"] = "FL";
+                j["command"] = "MANUAL";
+                j["direction"] = "L";
                 j["speed"] = speed;
                 keyTimer = 0;
             } else if (key == 100) {  // 'd' key for Right
-                j["direction"] = "FR";
+                j["command"] = "MANUAL";
+                j["direction"] = "R";
                 j["speed"] = speed;
                 keyTimer = 0;
             } else if (key == 115) {  // 's' key for Backward
+                j["command"] = "MANUAL";
                 j["direction"] = "B";
                 j["speed"] = speed;
                 keyTimer = 0;
             }  else if (keyTimer > 10) {  // Space bar for Stop
+                j["command"] = "MANUAL";
                 j["direction"] = "S";
             }
 
@@ -119,6 +124,15 @@ int main() {
             }
             cvui::text(frame, 260, 520, "Automatic Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
         }
+
+        if (!manualMode) {
+            robotController.setSpeed(speed);
+            if (!videoFrame.empty()) {
+                robotController.processFrame(videoFrame);
+            }
+        }
+
+
         cvui::text(frame, 260, 500, "Current Active Mode:", 0.6);
 
         // Display manual control buttons
