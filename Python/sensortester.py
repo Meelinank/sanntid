@@ -15,7 +15,7 @@ def imu_handler(imu_data):
             "IMU": {
                 "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
                 "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
-                "Roll" : imu_data.get("IMU",            {}).get("Roll "),
+                "Roll" : imu_data.get("IMU",            {}).get("Roll" ),
                 "X"    : imu_data.get('Accelerometer',  {}).get("X"    ),
                 "Y"    : imu_data.get('Accelerometer',  {}).get("Y"    ),
                 "Z"    : imu_data.get('Accelerometer',  {}).get("Z"    )
