@@ -28,7 +28,7 @@ class SpheroServer:
         try:
             self.rvr = SpheroRvrObserver()
             self.rvr.wake()
-            self.rvr.enable_color_detection(is_enabled=True)
+            #self.rvr.enable_color_detection(is_enabled=True)
         except Exception as e:
             print(f"Failed to initialize Sphero RVR: {e}")
 
