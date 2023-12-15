@@ -246,24 +246,24 @@ class SpheroServer:
 
     def rvrIMU_handler(self, imu_data):
         new_data = {
-                "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
-                "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
-                "Roll" : imu_data.get("IMU",            {}).get("Roll" )
+                "Pitch": round(imu_data.get("IMU",            {}).get("Pitch"),3),
+                "Roll" : round(imu_data.get("IMU",            {}).get("Roll" ),3),
+                "Yaw"  : round(imu_data.get("IMU",            {}).get("Yaw"  ),3)
             }
         with self.lock:
             self.sensor_data["IMU"] = new_data
 
     def rvrAccelerometer_handler(self, imu_data):
         new_data = {
-                "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
-                "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
-                "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )
+                "X"    : round(imu_data.get("Accelerometer",  {}).get("X"    ),3),
+                "Y"    : round(imu_data.get("Accelerometer",  {}).get("Y"    ),3),
+                "Z"    : round(imu_data.get("Accelerometer",  {}).get("Z"    ),3)
             }
         with self.lock:
             self.sensor_data["Accelerometer"] = new_data
 
     def rvrAmbientLight_handler(self, ambient_light_data):
-        new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
+        new_data = round(ambient_light_data.get("AmbientLight", {}).get("Light"),2)
         with self.lock:
             self.sensor_data["AmbientLight"] = new_data
 
