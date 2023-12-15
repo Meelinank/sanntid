@@ -20,7 +20,7 @@ class SpheroServer:
         try:
             self.camera = PiCamera()
             self.camera.resolution = (350, 250)
-            self.camera.framerate = 10
+            self.camera.framerate  = 10
         except Exception as e:
             print(f"Failed to initialize camera: {e}")
 
@@ -51,10 +51,6 @@ class SpheroServer:
                 service=RvrStreamingServices.color_detection,
                 handler=self.rvrColor_handler
             )
-            """self.rvr.sensor_control.add_sensor_data_handler(
-                service=RvrStreamingServices.imu,
-                handler=self.rvrIMU_handler
-            )"""
             self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.ambient_light,
                 handler=self.rvrAmbientLight_handler
@@ -64,10 +60,8 @@ class SpheroServer:
                 service=RvrStreamingServices.accelerometer,
                 handler=self.rvrAccelerometer_handler
             )
-            # Request battery percentage
             self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
-            
-            # Start sensor data streaming
+        
             
             self.rvr.sensor_control.start(interval=1000)
         except Exception as e:
@@ -166,14 +160,14 @@ class SpheroServer:
                 break
             try:
                 data = json.loads(message)
-                with self.lock:  # Use lock to safely update shared variables
-                    self.command = data.get("command", "MANUAL")
+                with self.lock:
+                    self.command   = data.get("command", "MANUAL")
                     self.direction = data.get("direction", "S")
-                    self.heading = max(-100, min(100, data.get("heading", 0)))
-                    self.speed = data.get("speed", 1)
-                print(f"Decoded command:      {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
+                    self.heading   = max(-100, min(100, data.get("heading", 0)))
+                    self.speed     = data.get("speed", 1)
+                print(f"Decoded command: {self.command}, Direction: {self.direction}, Heading: {self.heading}, Speed: {self.speed}")
             except json.JSONDecodeError:
-                print(f"Received bad message: {self.command},                              Heading: {self.heading}, Speed: {self.speed}")
+                print(f"Received bad message: {self.command}, Heading: {self.heading}, Speed: {self.speed}")
 
     def sensor_server(self):
         while not self.exit_flag:
@@ -228,7 +222,6 @@ class SpheroServer:
                     self.rvr.raw_motors(0, 0, 0, 0)
                 else:
                     print(f"Unknown command: {current_command}")
-
                 time.sleep(0.01)
         except Exception as e:
             print(f"Error in control_robot: {e}")
@@ -246,15 +239,6 @@ class SpheroServer:
             }
         with self.lock:
             self.sensor_data["ColorSensor"] = new_data
-
-    def rvrIMU_handler(self, imu_data):
-        new_data = {
-                "Pitch": round(imu_data.get("IMU",            {}).get("Pitch"),3),
-                "Roll" : round(imu_data.get("IMU",            {}).get("Roll" ),3),
-                "Yaw"  : round(imu_data.get("IMU",            {}).get("Yaw"  ),3)
-            }
-        with self.lock:
-            self.sensor_data["IMU"] = new_data
 
     def rvrAccelerometer_handler(self, imu_data):
         new_data = {
@@ -284,5 +268,3 @@ if __name__ == "__main__":
         server.start_server()
     finally:
         server.stop()
-""""
-"""
