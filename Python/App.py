@@ -237,9 +237,6 @@ class SpheroServer:
                 "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
                 "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
                 "Roll" : imu_data.get("IMU",            {}).get("Roll" ),
-                "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
-                "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
-                "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )
             }
         }
         with self.lock:
@@ -264,3 +261,8 @@ if __name__ == "__main__":
         server.start_server()
     finally:
         server.stop()
+""""
+
+                "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
+                "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
+                "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )"""
