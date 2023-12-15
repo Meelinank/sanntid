@@ -62,7 +62,7 @@ def main():
             service=RvrStreamingServices.ambient_light,
             handler=ambient_light_handler
         )
-        rvr.sensor_control.start(interval=250)
+        rvr.sensor_control.start(interval=1000)
 
         while True:
             # Delay to allow RVR to stream sensor data
