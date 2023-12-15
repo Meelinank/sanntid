@@ -6,6 +6,7 @@ import json
 from sphero_sdk import Colors
 from picamera import PiCamera
 from sphero_sdk import SpheroRvrObserver
+from sphero_sdk import RvrStreamingServices
 
 class SpheroServer:
     def __init__(self):
