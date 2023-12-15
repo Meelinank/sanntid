@@ -24,14 +24,39 @@ To run the project it is required to provide a -DCMAKE_TOOLCHAIN_FILE configurat
 
 ### Python:
 The python code is responsible for the communication between the C++ program and the Sphero RVR.
-...
+
+it starts 3 TCP servers on port 8000,8001,8002 and sends/receives data.
+8000 for webcam stream
+8001 for receiveing commands in JSON format
+8002 for sending sensordata in JSON format
+
+Command JSON sends a few variables like 
+```Command : "string" ``` to set operating mode either MANUAL or AUTO
+```direction : "string"``` either F = forward, L = left, R = right, B = backwards, S = stop
+```speed : "float"``` floatvalue between 0 to 1 representing the % of max speed you wana go.'
+```heading : "int"``` interger between -100 to 100. 0 means straight forward -100 full left 100 full right
+
+Sensor JSON sends theese variables as a dictionaries
+```battery : "int"``` send battery percentage as an interger
+```"ColorSensor" : "{"R": "int", "G": "int","B": "int"}``` RBG valued from the color sensor beneath the rvr.
+```"Accelerometer" : "{"X": "float", "Y": "float","Z": "float"} ``` XYZ accel values rounded down to 3 decimals.
+```"AmbientLight"`: "float"``` Float value of the onboard ambient light sensor.
 
 The python code uses the external library "sphero_sdk" to communicate with the Sphero RVR.
 This library is included in the project file and requires no further installation.
 
+there is also a included discord script that sends the raspberry's ipv4 address to a webhook url if needed
+thanks to fhodun for his awesome repo https://github.com/fhodun/ip-webhook
+the script has been slightly modified to fit this project.
 
 ## HARDWARE
-The hardware used in this project is a Raspberry Pi zero and a Sphero RVR.
+The hardware used in this project was:
+- Raspberry Pi zero 
+- sparkfun pi servohat https://www.sparkfun.com/products/15316
+- raspberry pi camera module v2
+- Sphero RVR.
+- A hard Flat tube was printed to avoid camera wobble while driving, look for file in CAD files
+
 
 ## INSTALLATION
 
