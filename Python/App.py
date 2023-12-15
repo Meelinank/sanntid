@@ -28,6 +28,7 @@ class SpheroServer:
         try:
             self.rvr = SpheroRvrObserver()
             self.rvr.wake()
+            self.rvr.enable_color_detection(is_enabled=True)
         except Exception as e:
             print(f"Failed to initialize Sphero RVR: {e}")
 
@@ -45,7 +46,7 @@ class SpheroServer:
     def init_sensor_control(self):
         try:
             # Add sensor data handlers
-            self.rvr.enable_color_detection(is_enabled=True)
+            
             self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.color_detection,
                 handler=self.rvrColor_handler
@@ -64,7 +65,7 @@ class SpheroServer:
             
             # Start sensor data streaming
             
-            self.rvr.sensor_control.start(interval=100)
+            self.rvr.sensor_control.start(interval=1000)
         except Exception as e:
             print(f"Failed to initialize sensor control: {e}")
 
