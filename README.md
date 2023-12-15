@@ -1,11 +1,11 @@
 ## AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
 ![Sphero rvr](https://github.com/Meelinank/sanntid/tree/main/images/readmeImage.png)
-This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer. 
+This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer.\
 The project consist of creating software that enables communication from a PC using a Raspberry Pi and a Sphero RVR.
 
 
 ## PROJECT REQUIREMENTS
-There had to be an established communication between the software on PC and the Sphero RVR and Raspberry PI.
+There had to be an established communication between the software on PC and the Sphero RVR and Raspberry PI.\
 We were free to choose communication protocol and format. (unsure if this is needed)
 
 
@@ -15,15 +15,27 @@ The project is written using mainly C++ and python.
 ### C++:
 The C++ code works by reading input from a user and sending commands to a Raspberry Pi using TCP. . . 
 
-About the classes and how they work 
+Class descriptions:
 
-The project uses multiple libraries such as: "boost-asio", "catch2", "sdl2", "opencv4" and "nlohmann-json". 
+The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\ 
+Specifically, it is used in conjunction with RobotController to facilitate the RVR control via Raspberry Pi.
+
+The RobotController class is responsible for controlling the RVR.\
+It receives commands from the CommandSender class, sending commands to the RVR.
+
+The SensorReceiver class is responsible for receiving sensor data from the Raspberry Pi.\
+The data received is then displayed in the UI in the main function, and is updated once every second.
+
+The FrameReceiver class is responsible for receiving frames from the Raspberry Pi.\
+The frames are then displayed in the UI in the main function.
+
+
+The project uses multiple libraries such as: "boost-asio", "catch2", "sdl2", "opencv4" and "nlohmann-json".\
 These libraries are automatically installed by the project by CMake using vcpkg.
 To run the project it is required to provide a -DCMAKE_TOOLCHAIN_FILE configuration for vcpgk.
 
-
 ### Python:
-The python code is responsible for the communication between the C++ program and the Sphero RVR.\
+The python code is responsible for the communication between the C++ program and the Sphero RVR.
 \
 it starts 3 TCP servers on port 8000,8001,8002 and sends/receives data.\
 8000 for webcam stream\
