@@ -14,7 +14,7 @@ public:
     bool connectSocket();
 
 private:
-    boost::asio::io_service& io_service; // Store reference to io_service
+    boost::asio::io_service& io_service;
     std::string server;
     std::string port;
     boost::asio::ip::tcp::socket command_socket;
