@@ -43,8 +43,8 @@ int main() {
             cvui::image(frame, 50, 50, videoFrame);
             cvui::text(frame, 50, 10, "Camera Feed:", 0.8);
         }
-        cvui::text(frame, 400, 410, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
-        cvui::trackbar(frame, 400, 430, 360, &speed, (float)0, (float)1);
+        cvui::text(frame, 400, 400, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
+        cvui::trackbar(frame, 400, 420, 360, &speed, (float)0, (float)1);
 
         int key = cv::waitKey(20); // Check for key presses
 
@@ -139,10 +139,10 @@ int main() {
         // Display manual control buttons
         cvui::text(frame, 50, 320, "Manual Control:");
         cvui::text(frame, 50, 340, "W - Forward");
-        cvui::text(frame, 50, 460, "A - Left");
-        cvui::text(frame, 50, 480, "S - Backward");
-        cvui::text(frame, 50, 500, "D - Right");
-        cvui::text(frame, 50, 520, "Space - Stop");
+        cvui::text(frame, 50, 360, "A - Left");
+        cvui::text(frame, 50, 380, "S - Backward");
+        cvui::text(frame, 50, 400, "D - Right");
+        cvui::text(frame, 50, 420, "Space - Stop");
         cvui::text(frame, 660, 600, "ESC - Quit", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
 
         cvui::update();
