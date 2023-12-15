@@ -33,7 +33,7 @@ void CommandSender::sendCommand(const std::string& rawMessage) {
     } catch (std::exception& e) {
         std::cerr << "Failed to send command: " << e.what() << std::endl;
         command_socket.close();
-        connectSocket(); // Attempt to reconnect the socket
+        connectSocket();
     }
 }
 
