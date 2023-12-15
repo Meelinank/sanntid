@@ -255,7 +255,7 @@ class SpheroServer:
                     "Z": accelerometer_data.get("Acceleration", {}).get("Z")
                 }
 
-    def rvrAccelhandler(self, accelerometer_data):
+    def rvrAccel_handler(self, accelerometer_data):
         new_data = {
             "Acceleration": {
                 "X": accelerometer_data.get("Acceleration", {}).get("X"),
@@ -265,7 +265,7 @@ class SpheroServer:
         }
         with self.lock:
             self.sensor_data["Acceleration"] = new_data
-            
+
     def stop(self):
         self.exit_flag = True
         try:
