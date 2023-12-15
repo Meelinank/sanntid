@@ -204,6 +204,10 @@ class SpheroServer:
 
                 if current_command is None:
                     continue
+                if current_command == 'MANUAL':
+                    self.rvr.led_control.set_all_leds_color(color=Colors.yellow)
+                elif current_command == 'AUTO':
+                    self.rvr.led_control.set_all_leds_color(color=Colors.green)
 
                 if current_command == 'AUTO':
                     adjusted_speed_left  = int((base_speed - current_heading) * current_speed)
@@ -219,8 +223,10 @@ class SpheroServer:
                     self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * current_speed), 1,int((base_speed - turn_adjustment) * current_speed))
                 elif current_direction == 'S':
                     self.rvr.raw_motors(0, 0, 0, 0)
+                    self.rvr.led_control.set_all_leds_color(color=Colors.red)
                 else:
                     print(f"Unknown command: {current_command}")
+                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)
                 time.sleep(0.01)
         except Exception as e:
             print(f"Error in control_robot: {e}")
