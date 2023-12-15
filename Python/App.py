@@ -171,21 +171,22 @@ class SpheroServer:
     def sensor_updater(self, client_socket):
         while not self.exit_flag:
             try:
-                with self.lock:  # Ensuring thread-safe access to sensor data
+                with self.lock:
                     sensor_json = json.dumps(self.sensor_data) + "\n"
                 client_socket.sendall(sensor_json.encode())
-                time.sleep(0.01)  # Small delay to prevent overwhelming the client
+
+                time.sleep(0.01)
             except Exception as e:
                 print(f"Error in sensor_updater: {e}")
-                break  # Exit the loop if there's an error
-        client_socket.close()  # Close the connection after finishing or on error
+                break
+        client_socket.close()
 
     def control_robot(self):
         base_speed = 101
         turn_adjustment = 70
         try:
             while not self.exit_flag:
-                with self.lock:  # Safely read shared variables within the lock
+                with self.lock:
                     current_command   = self.command
                     current_direction = self.direction
                     current_heading   = self.heading
@@ -194,7 +195,6 @@ class SpheroServer:
                 if current_command is None:
                     continue
 
-                # Robot control logic
                 if current_command == 'AUTO':
                     adjusted_speed_left  = int((base_speed - current_heading) * current_speed)
                     adjusted_speed_right = int((base_speed + current_heading) * current_speed)
@@ -212,7 +212,7 @@ class SpheroServer:
                 else:
                     print(f"Unknown command: {current_command}")
 
-                time.sleep(0.01)  # A short delay to prevent overwhelming the robot with commands
+                time.sleep(0.01)
         except Exception as e:
             print(f"Error in control_robot: {e}")
 
@@ -247,13 +247,6 @@ class SpheroServer:
         new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
         with self.lock:
             self.sensor_data["AmbientLight"] = new_data
-        def rvrAccel_handler(self, accelerometer_data):
-            with self.lock:  # Ensure thread-safe update
-                self.sensor_data["Acceleration"] = {
-                    "X": accelerometer_data.get("Acceleration", {}).get("X"),
-                    "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
-                    "Z": accelerometer_data.get("Acceleration", {}).get("Z")
-                }
 
     def rvrAccel_handler(self, accelerometer_data):
         new_data = {
