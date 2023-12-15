@@ -66,7 +66,7 @@ class SpheroServer:
             self.rvr.get_battery_percentage(handler=self.rvrBatteryPercentage_handler)
 
             # Start sensor data streaming
-            self.rvr.sensor_control.start(interval=100)
+            self.rvr.sensor_control.start(interval=1000)
         except Exception as e:
             print(f"Failed to initialize sensor control: {e}")
 
@@ -217,37 +217,55 @@ class SpheroServer:
             print(f"Error in control_robot: {e}")
 
     def rvrBatteryPercentage_handler(self, battery_percentage):
-        with self.lock:  # Ensure thread-safe update
-            self.sensor_data["Battery"] = battery_percentage.get("percentage")
+        new_data = battery_percentage.get("percentage")
+        with self.lock:
+            self.sensor_data["Battery"] = new_data
 
     def rvrColor_handler(self, color_data):
-        with self.lock:  # Ensure thread-safe update
-            self.sensor_data["ColorSensor"] = {
+        new_data = {
+            "ColorSensor": {
                 "R": color_data.get("ColorDetection", {}).get("R"),
                 "G": color_data.get("ColorDetection", {}).get("G"),
                 "B": color_data.get("ColorDetection", {}).get("B")
             }
+        }
+        with self.lock:
+            self.sensor_data["ColorSensor"] = new_data
 
     def rvrIMU_handler(self, imu_data):
-        with self.lock:  # Ensure thread-safe update
-            self.sensor_data["IMU"] = {
+        new_data = {
+            "IMU": {
                 "Pitch": imu_data.get("IMU", {}).get("Pitch"),
-                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"  ),
-                "Roll" : imu_data.get("IMU", {}).get("Roll" )
+                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"),
+                "Roll" : imu_data.get("IMU", {}).get("Roll")
             }
+        }
+        with self.lock:
+            self.sensor_data["IMU"] = new_data
 
     def rvrAmbientLight_handler(self, ambient_light_data):
-        with self.lock:  # Ensure thread-safe update
-            self.sensor_data["AmbientLight"] = ambient_light_data.get("AmbientLight", {}).get("Light")
+        new_data = ambient_light_data.get("AmbientLight", {}).get("Light")
+        with self.lock:
+            self.sensor_data["AmbientLight"] = new_data
+        def rvrAccel_handler(self, accelerometer_data):
+            with self.lock:  # Ensure thread-safe update
+                self.sensor_data["Acceleration"] = {
+                    "X": accelerometer_data.get("Acceleration", {}).get("X"),
+                    "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
+                    "Z": accelerometer_data.get("Acceleration", {}).get("Z")
+                }
 
-    def rvrAccel_handler(self, accelerometer_data):
-        with self.lock:  # Ensure thread-safe update
-            self.sensor_data["Acceleration"] = {
+    def rvrAccelhandler(self, accelerometer_data):
+        new_data = {
+            "Acceleration": {
                 "X": accelerometer_data.get("Acceleration", {}).get("X"),
                 "Y": accelerometer_data.get("Acceleration", {}).get("Y"),
                 "Z": accelerometer_data.get("Acceleration", {}).get("Z")
             }
-
+        }
+        with self.lock:
+            self.sensor_data["Acceleration"] = new_data
+            
     def stop(self):
         self.exit_flag = True
         try:
