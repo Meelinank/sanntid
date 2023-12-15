@@ -19,6 +19,7 @@ int main() {
     CommandSender commandSender(io_service, "10.25.45.112", "8001");
     SensorDataReceiver sensorDataReceiver(io_service, "10.25.45.112", "8002");
     RobotController robotController("10.25.45.112", "8000", "10.25.45.112", "8001", io_service, commandSender);
+    commandSender.connectSocket();
 
     // Declaring UI variables
     float speed = 0;
@@ -42,8 +43,8 @@ int main() {
             cvui::image(frame, 50, 50, videoFrame);
             cvui::text(frame, 50, 10, "Camera Feed:", 0.8);
         }
-        cvui::text(frame, 50, 410, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
-        cvui::trackbar(frame, 50, 430, 360, &speed, (float)0, (float)1);
+        cvui::text(frame, 400, 410, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
+        cvui::trackbar(frame, 400, 430, 360, &speed, (float)0, (float)1);
 
         int key = cv::waitKey(20); // Check for key presses
 
@@ -136,12 +137,12 @@ int main() {
         cvui::text(frame, 260, 500, "Current Active Mode:", 0.6);
 
         // Display manual control buttons
-        cvui::text(frame, 50, 260, "Manual Control:");
-        cvui::text(frame, 50, 280, "W - Forward");
-        cvui::text(frame, 50, 300, "A - Left");
-        cvui::text(frame, 50, 320, "S - Backward");
-        cvui::text(frame, 50, 340, "D - Right");
-        cvui::text(frame, 50, 360, "Space - Stop");
+        cvui::text(frame, 50, 320, "Manual Control:");
+        cvui::text(frame, 50, 340, "W - Forward");
+        cvui::text(frame, 50, 460, "A - Left");
+        cvui::text(frame, 50, 480, "S - Backward");
+        cvui::text(frame, 50, 500, "D - Right");
+        cvui::text(frame, 50, 520, "Space - Stop");
         cvui::text(frame, 660, 600, "ESC - Quit", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
 
         cvui::update();

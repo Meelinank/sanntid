@@ -13,10 +13,11 @@ add_executable(UI_test UI/UI_test.cpp)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(UI_test ${OpenCV_LIBS})
-target_include_directories(sanntid PRIVATE "${CMAKE_SOURCE_DIR}/Include")
-target_include_directories(sanntid PRIVATE "${CMAKE_SOURCE_DIR}/UI")
+target_include_directories(sanntid PUBLIC "${CMAKE_SOURCE_DIR}/Include")
+target_include_directories(sanntid PUBLIC "${CMAKE_SOURCE_DIR}/UI")
 
 add_subdirectory(Tests)
+add_subdirectory(src)
 
 
 target_link_libraries(sanntid PUBLIC
