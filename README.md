@@ -1,5 +1,5 @@
 ## AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
-![Sphero rvr](https://github.com/Meelinank/sanntid/tree/main/images/readmeImage.png)
+![Sphero rvr](images/readmeImage.png)
 This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer.\
 The project consist of creating software that enables communication from a PC using a Raspberry Pi and a Sphero RVR.
 
@@ -17,7 +17,6 @@ The C++ code works by reading input from a user and sending commands to a Raspbe
 
 
 Class descriptions:
-
 The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\ 
 Specifically, it is used in conjunction with RobotController to facilitate the RVR control via Raspberry Pi.
 
