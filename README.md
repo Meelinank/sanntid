@@ -59,13 +59,15 @@ the script has been slightly modified to fit this project.\
 
 ### Sphero Pi
 **update rasbian**\
-```sudo apt update
+```
+sudo apt update
 sudo apt dist-upgrade
 sudo apt clean
-sudo reboot```\
+sudo reboot
+```
 \
 **Install the sphero library**\
-```pyrthon3 -m pip install sphero-sdk```\
+```python3 -m pip install sphero-sdk```\
 \
 **git clone the project repo onto the raspberry pi**\
 ```git clone https://github.com/Meelinank/sanntid.git```\
