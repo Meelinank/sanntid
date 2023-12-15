@@ -10,7 +10,7 @@ TEST_CASE("Testing CommandSender", "[Testing]") { // This test works
     CommandSender commandSender(io_service, "127.0.0.1", "5001");
 }
 
-TEST_CASE("Testing RobotController", "[Testing]") { // This test does not work, due to FrameReceiver failing to connect
+TEST_CASE("Testing RobotController", "[Testing]") { // This test does not work, due to RobotController failing to connect
     boost::asio::io_service io_service;
     CommandSender commandSender(io_service, "127.0.0.1", "5001");
     RobotController robotController("127.0.0.1", "5000", "127.0.0.1", "5001", io_service, commandSender);
