@@ -41,26 +41,27 @@ These libraries are automatically installed by the project by CMake using vcpkg.
 To run the project it is required to provide a ```-DCMAKE_TOOLCHAIN_FILE``` configuration for vcpgk.
 
 ### Python:
-The python code is responsible for the communication between the C++ program and the Sphero RVR.
+The python code is responsible for the communication between the C++ program and the Sphero RVR and is contained in a single class called ```SpheroServer```
 
 **Layout**
-The pi starts 3 TCP servers on port 8000,8001,8002 athat sends/receives data, each one running in its own thread. The videoserver does not sync with the other threads since its only job is to send camera images. Aditionaly there is a fourth thread running the robot controller which reads incomming commands and executes motorcontrol as well as lights.
+```SpheroServer``` starts 3 TCP servers on port 8000,8001,8002 that sends/receives data, each one running in its own thread. The videoserver does not sync with the other threads since its only job is to send camera images. Aditionaly there is a fourth thread running the robot controller which reads incomming commands and executes motorcontrol as well as lights.
 
 **Video server**
-video_server is the threadfunction that connects the websocket and executes the webcam function ```process_video_stream()```. This function then captures frames and sends a jpeg stream.
+```video_server()``` is the threadfunction that connects the websocket and executes the webcam function ```process_video_stream()```. This function then captures frames and sends a jpeg stream.
 
 **Command server**
-command_server is the threadfuntion that handles connection and runds the handle_client function.
+```command_server()``` is the threadfuntion that handles connection and runds the handle_client function.
 ```handle_client()``` takes in a json string and parses out the needed values to the SpheroServer class (see Command JSON format).
 
 **Sensor server**
-same like the previous one it handles connection and runs ```sensor_updater()```. sensor_updater takes the ```self.sensor_data``` variable, turns it into JSON and ships it to c++ (see Sensor JSON format).
+```sensor_server()``` same like the previous one it handles connection and runs ```sensor_updater()```. sensor_updater takes the ```self.sensor_data``` variable, turns it into JSON and ships it to c++ (see Sensor JSON format).
 
 **Control robot**
-Is a thread that reads the incomming data stored by handle_client and executes motorcontrol and LED colors. When in manual mode LED's are yellow, while auto is indicated by green. In case of bad commands it will light up purple.
+```control_robot()``` Is a thread that reads the incomming data stored by handle_client and executes motorcontrol and LED colors. When in manual mode LED's are yellow, while auto is indicated by green. In case of bad commands it will light up purple.
 
 **init sensors**
-Beware that all sensordata gathering is done by the sphero library in the background and is declared in init_sensor_control(). If a faster sensor poll speed is desired set ```self.rvr.sensor_control.start(interval=1000)``` to a lower interval (milliseconds)
+Beware that all sensordata gathering is done by the sphero library in the background and is declared in ```init_sensor_control()```. If a faster sensor poll speed is desired set ```self.rvr.sensor_control.start(interval=1000)``` to a lower interval (milliseconds). Each sensor gets called by ```self.rvr.sensor_control.add_sensor_data_handler(service,handler) ``` which calles each sensor handler function in the background.
+
 **Ports used for communication**
 8000 for webcam stream\
 8001 for receiveing commands in JSON format\
