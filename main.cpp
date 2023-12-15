@@ -135,6 +135,7 @@ int main() {
 
         cvui::text(frame, 260, 500, "Current Active Mode:", 0.6);
 
+        cvui::text(frame, 535, 130, "%" );
         // Display manual control buttons
         cvui::text(frame, 50, 320, "Manual Control:");
         cvui::text(frame, 50, 340, "W - Forward");

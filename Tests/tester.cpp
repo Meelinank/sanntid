@@ -4,6 +4,7 @@
 #include "SensorDataReceiver.hpp"
 
 
+
 TEST_CASE("Testing CommandSender", "[Testing]") { // This test works
     boost::asio::io_service io_service;
     CommandSender commandSender(io_service, "127.0.0.1", "5001");
