@@ -28,7 +28,7 @@ class SpheroServer:
         try:
             self.rvr = SpheroRvrObserver()
             self.rvr.wake()
-            #self.rvr.enable_color_detection(is_enabled=True)
+            self.rvr.enable_color_detection(is_enabled=True)
         except Exception as e:
             print(f"Failed to initialize Sphero RVR: {e}")
 
@@ -237,6 +237,9 @@ class SpheroServer:
                 "Pitch": imu_data.get("IMU",            {}).get("Pitch"),
                 "Yaw"  : imu_data.get("IMU",            {}).get("Yaw"  ),
                 "Roll" : imu_data.get("IMU",            {}).get("Roll" ),
+                "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
+                "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
+                "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )
             }
         }
         with self.lock:
@@ -262,7 +265,4 @@ if __name__ == "__main__":
     finally:
         server.stop()
 """"
-
-                "X"    : imu_data.get("Accelerometer",  {}).get("X"    ),
-                "Y"    : imu_data.get("Accelerometer",  {}).get("Y"    ),
-                "Z"    : imu_data.get("Accelerometer",  {}).get("Z"    )"""
+"""
