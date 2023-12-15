@@ -15,10 +15,6 @@ class SpheroServer:
         self.setup_sockets()
         self.init_sensor_control()
         self.setup_threading_variables()
-        self.direction = None
-        self.heading = None
-        self.speed = None
-        self.sensor_data = {}
 
     def init_camera(self):
         try:
@@ -36,9 +32,9 @@ class SpheroServer:
             print(f"Failed to initialize Sphero RVR: {e}")
 
     def setup_sockets(self):
-        self.video_socket = self.create_socket(8000)
+        self.video_socket   = self.create_socket(8000)
         self.command_socket = self.create_socket(8001)
-        self.sensor_socket = self.create_socket(8002)
+        self.sensor_socket  = self.create_socket(8002)
 
     def create_socket(self, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,10 +71,13 @@ class SpheroServer:
             print(f"Failed to initialize sensor control: {e}")
 
     def setup_threading_variables(self):
-        self.exit_flag = False
-        self.command = None
-        self.sensor_data = {}
-        self.lock = threading.Lock()  # Add a lock for thread-safe operations
+        self.exit_flag      = False
+        self.command        = None
+        self.sensor_data    = {}
+        self.direction      = None
+        self.heading        = None
+        self.speed          = None
+        self.lock           = threading.Lock()  # Add a lock for thread-safe operations
 
 
     def start_server(self):
@@ -110,7 +109,7 @@ class SpheroServer:
                 self.process_video_stream(client_socket)
             except Exception as e:
                 print(f"Video server error: {e}")
-                time.sleep(1)  # Prevents a tight loop in case of continuous errors
+                time.sleep(1)
 
     def process_video_stream(self, client_socket):
         stream = io.BytesIO()
@@ -131,8 +130,7 @@ class SpheroServer:
         except Exception as e:
             print(f"Error capturing video: {e}")
         finally:
-            client_socket.close()  # Ensure the socket is closed after streaming
-
+            client_socket.close()
     def command_server(self):
         while not self.exit_flag:
             try:
@@ -188,17 +186,17 @@ class SpheroServer:
         try:
             while not self.exit_flag:
                 with self.lock:  # Safely read shared variables within the lock
-                    current_command = self.command
+                    current_command   = self.command
                     current_direction = self.direction
-                    current_heading = self.heading
-                    current_speed = self.speed
+                    current_heading   = self.heading
+                    current_speed     = self.speed
 
                 if current_command is None:
                     continue
 
                 # Robot control logic
                 if current_command == 'AUTO':
-                    adjusted_speed_left = int((base_speed - current_heading) * current_speed)
+                    adjusted_speed_left  = int((base_speed - current_heading) * current_speed)
                     adjusted_speed_right = int((base_speed + current_heading) * current_speed)
                     self.rvr.raw_motors(1, adjusted_speed_left, 1, adjusted_speed_right)
                 elif current_direction == 'F':
@@ -206,17 +204,15 @@ class SpheroServer:
                 elif current_direction == 'B':
                     self.rvr.raw_motors(2, int(base_speed * current_speed), 2, int(base_speed * current_speed))
                 elif current_direction == 'L':
-                    self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * current_speed), 1,
-                                        int((base_speed + turn_adjustment) * current_speed))
+                    self.rvr.raw_motors(1, int((base_speed - turn_adjustment) * current_speed), 1,int((base_speed + turn_adjustment) * current_speed))
                 elif current_direction == 'R':
-                    self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * current_speed), 1,
-                                        int((base_speed - turn_adjustment) * current_speed))
+                    self.rvr.raw_motors(1, int((base_speed + turn_adjustment) * current_speed), 1,int((base_speed - turn_adjustment) * current_speed))
                 elif current_direction == 'S':
                     self.rvr.raw_motors(0, 0, 0, 0)
                 else:
                     print(f"Unknown command: {current_command}")
 
-                time.sleep(0.1)  # A short delay to prevent overwhelming the robot with commands
+                time.sleep(0.01)  # A short delay to prevent overwhelming the robot with commands
         except Exception as e:
             print(f"Error in control_robot: {e}")
 
@@ -236,8 +232,8 @@ class SpheroServer:
         with self.lock:  # Ensure thread-safe update
             self.sensor_data["IMU"] = {
                 "Pitch": imu_data.get("IMU", {}).get("Pitch"),
-                "Yaw": imu_data.get("IMU", {}).get("Yaw"),
-                "Roll": imu_data.get("IMU", {}).get("Roll")
+                "Yaw"  : imu_data.get("IMU", {}).get("Yaw"  ),
+                "Roll" : imu_data.get("IMU", {}).get("Roll" )
             }
 
     def rvrAmbientLight_handler(self, ambient_light_data):
