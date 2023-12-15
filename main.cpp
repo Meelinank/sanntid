@@ -29,7 +29,7 @@ int main() {
     frameReceiver.startReceiving();
     robotController.start();
     cvui::init(WINDOW_NAME);
-    cv::Mat frame = cv::Mat(650, 840, CV_8UC3);
+    cv::Mat frame = cv::Mat(630, 840, CV_8UC3);
     cv::Mat videoFrame;
 
     nlohmann::json lastSensorData;
@@ -43,14 +43,14 @@ int main() {
             cvui::image(frame, 50, 50, videoFrame);
             cvui::text(frame, 50, 10, "Camera Feed:", 0.8);
         }
-        cvui::text(frame, 400, 400, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
-        cvui::trackbar(frame, 400, 420, 360, &speed, (float)0, (float)1);
+        cvui::text(frame, 400, 500, "Adjust speed in manual mode, 0 is none 1 is max speed:", 0.4);
+        cvui::trackbar(frame, 400, 520, 360, &speed, (float)0, (float)1);
 
         int key = cv::waitKey(20); // Check for key presses
 
-        cvui::window(frame, 50, 500, 180, 120, "Select driving mode"); // Window for driving mode selection
+        cvui::window(frame, 50, 400, 180, 120, "Select driving mode"); // Window for driving mode selection
 
-        if (cvui::button(frame, 80, 540, "Manual")) {
+        if (cvui::button(frame, 80, 430, "Manual")) {
             manualMode = true;
             nlohmann::json j;
             j["command"] = "MANUAL";
@@ -58,11 +58,11 @@ int main() {
             std::string jsonString = j.dump();
             commandSender.sendCommand(jsonString);
         }
-        if (cvui::button(frame, 80, 580, "Automatic")) {
+        if (cvui::button(frame, 80, 480, "Automatic")) {
             manualMode = false;
         }
-        cvui::text(frame, 440, 10, "Sensor Data:", 0.8); // Data from Sphero
-        cvui::window(frame, 440, 50, 350, 250, "Sensor Data from Sphero RVR");
+        cvui::text(frame, 440, 10, "Sensor Data From:", 0.8); // Data from Sphero
+        cvui::window(frame, 440, 50, 350, 250, "IP 10.25.45.112");
         if (sensorDataReceiver.isConnected()) {
             try {
                 nlohmann::json sensorData = sensorDataReceiver.receiveSensorData();
@@ -86,7 +86,7 @@ int main() {
 
         if (manualMode) {  // If in manual mode, check for key presses
             keyTimer++;
-            cvui::text(frame, 260, 520, "Manual Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 255, 0)));
+            cvui::text(frame, 50, 360, "Manual Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 255, 0)));
             nlohmann::json j;
             if (key == 119) {  // 'w' key for Forward
                 j["command"] = "MANUAL";
@@ -125,7 +125,7 @@ int main() {
                 robotController.processFrame(videoFrame);
                 robotController.setSpeed(speed);
             }
-            cvui::text(frame, 260, 520, "Automatic Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
+            cvui::text(frame, 50, 360, "Automatic Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
         }
 
         if (!manualMode) {
@@ -135,18 +135,18 @@ int main() {
             }
         }
 
-        cvui::text(frame, 260, 500, "Current Active Mode:", 0.6);
+        cvui::text(frame, 50, 320, "Current Active Mode:", 0.6);
 
         cvui::text(frame, 535, 130, "%" );
 
         // Display manual control buttons
-        cvui::text(frame, 50, 320, "Manual Control:");
-        cvui::text(frame, 50, 340, "W - Forward");
-        cvui::text(frame, 50, 360, "A - Left");
-        cvui::text(frame, 50, 380, "S - Backward");
-        cvui::text(frame, 50, 400, "D - Right");
-        cvui::text(frame, 50, 420, "Space - Stop");
-        cvui::text(frame, 660, 600, "ESC - Quit", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
+        cvui::text(frame, 550, 340, "Manual Control:");
+        cvui::text(frame, 550, 360, "W - Forward");
+        cvui::text(frame, 550, 380, "A - Left");
+        cvui::text(frame, 550, 400, "S - Backward");
+        cvui::text(frame, 550, 420, "D - Right");
+        cvui::text(frame, 550, 440, "Space - Stop");
+        cvui::text(frame, 660, 580, "ESC - Quit", 0.6, RGBtoUSLI(cv::Scalar(0, 0, 255)));
 
         cvui::update();
         cv::imshow(WINDOW_NAME, frame);
