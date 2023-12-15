@@ -225,6 +225,7 @@ class SpheroServer:
                     self.rvr.raw_motors(0, 0, 0, 0)
                 else:
                     print(f"Unknown command: {current_command}")
+                    self.rvr.led_control.set_all_leds_color(color=Colors.purple)
                 time.sleep(0.01)
         except Exception as e:
             print(f"Error in control_robot: {e}")
