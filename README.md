@@ -62,16 +62,16 @@ The hardware used in this project was:\
 
 ### Sphero Pi
 update rasbian\
-``` sudo apt update```\
-```sudo apt dist-upgrade```\
-```sudo apt clean```\
-```sudo reboot  ```\
+```sudo apt update
+sudo apt dist-upgrade
+sudo apt clean
+sudo reboot```\
 \
 Install the sphero library\
 ```git clone https://github.com/sphero-inc/sphero-sdk-raspberrypi-python.git```\
 navigate and execute first time setup\
-```cd ~/sphero-sdk-raspberrypi-python```\
-```./first-time-setup.sh```\
+```cd ~/sphero-sdk-raspberrypi-python
+./first-time-setup.sh```\
 run through the installer\
 \
 git clone the project repo onto the raspberry pi\
