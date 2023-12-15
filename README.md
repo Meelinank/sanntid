@@ -9,7 +9,7 @@ The project consist of creating software that enables communication from a PC us
 There had to be an established communication between the software on PC and the Sphero RVR and Raspberry PI.\
 We were free to choose communication protocol and format.\
 Both manual and autonomous control had to be implemented.\
-It was also required to display runtime information about the Sphero RVR to the user.\
+It was also required to display runtime information about the Sphero RVR to the user.
 
 ## SOFTWARE
 The project is written using mainly C++ and Python.
@@ -17,8 +17,8 @@ The project is written using mainly C++ and Python.
 ### C++:
 The C++ program works by reading input from a user and sending commands to a Raspberry Pi using TCP.
 
-Class descriptions:
-The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\ 
+Class descriptions:\
+The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\
 Specifically, it is used in conjunction with RobotController to facilitate the RVR control via Raspberry Pi.
 
 The RobotController class is responsible for controlling the RVR.\
