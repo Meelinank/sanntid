@@ -1,5 +1,6 @@
 ## AIS2203 - Sanntids datateknikk for kyberfysiske systemer Portfolio Project
-![Sphero rvr](https://github.com/Meelinank/sanntid/tree/main/images/readmeImage.png)
+![Sphero rvr](images/readmeImage.png)
+
 This is a group project in the subject in AIS2203 - Sanntids datateknikk for kyberfysiske systemer.\
 The project consist of creating software that enables communication from a PC using a Raspberry Pi and a Sphero RVR.
 
@@ -17,8 +18,7 @@ The C++ code works by reading input from a user and sending commands to a Raspbe
 
 
 Class descriptions:
-
-The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\
+The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\ 
 Specifically, it is used in conjunction with RobotController to facilitate the RVR control via Raspberry Pi.
 
 The RobotController class is responsible for controlling the RVR.\
@@ -31,7 +31,10 @@ The FrameReceiver class is responsible for receiving frames from the Raspberry P
 The frames are then displayed in the UI in the main function.
 
 Main function:\
-In the main function, the UI is initialized, and the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.
+In the main function the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
+The main function contains the UI, which is used to send commands to the RVR and display sensor data and frames.\
+The UI is made using cvui, and will present the user with a window containing buttons for manual and automatic mode,\
+and displays the sensor data. 
 
 The project uses multiple libraries such as: ```"boost-asio"```, ```"catch2"```, ```"sdl2"```, ```"opencv4"``` and ```"nlohmann-json"```.\
 These libraries are automatically installed by the project by CMake using vcpkg.
