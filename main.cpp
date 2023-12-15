@@ -133,7 +133,6 @@ int main() {
             }
         }
 
-
         cvui::text(frame, 260, 500, "Current Active Mode:", 0.6);
 
         // Display manual control buttons
