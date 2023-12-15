@@ -39,11 +39,6 @@ bool FrameReceiver::getNextFrame(cv::Mat& frame) {
     return true;
 }
 
-bool FrameReceiver::hasFrames() const {
-    std::lock_guard<std::mutex> lock(queue_mutex);
-    return !frame_queue.empty();
-}
-
 void FrameReceiver::receiveFrames() {
     try {
         while (receiving) {

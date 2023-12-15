@@ -82,6 +82,8 @@ int main() {
             yPos += 20;
         }
 
+        std::cout << lastSensorData << std::endl;
+
         if (manualMode) {  // If in manual mode, check for key presses
             keyTimer++;
             cvui::text(frame, 260, 520, "Manual Control Active", 0.6, RGBtoUSLI(cv::Scalar(0, 255, 0)));

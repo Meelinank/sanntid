@@ -1,9 +1,9 @@
 #include "CommandSender.hpp"
 #include <iostream>
+#include <utility>
 
-CommandSender::CommandSender(boost::asio::io_service& io_service, const std::string& server, const std::string& port)
-        : io_service(io_service), server(server), port(port), command_socket(io_service) {
-    //connectSocket();
+CommandSender::CommandSender(boost::asio::io_service& io_service, std::string  server, std::string  port)
+        : io_service(io_service), server(std::move(server)), port(std::move(port)), command_socket(io_service) {
 }
 
 bool CommandSender::connectSocket() {

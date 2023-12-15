@@ -1,9 +1,10 @@
 #include "SensorDataReceiver.hpp"
 #include <iostream>
 #include <boost/asio.hpp>
+#include <utility>
 
-SensorDataReceiver::SensorDataReceiver(boost::asio::io_service& io_service, const std::string& server, const std::string& port)
-        : io_service(io_service), server(server), port(port), data_socket(io_service) {
+SensorDataReceiver::SensorDataReceiver(boost::asio::io_service& io_service, std::string  server, std::string  port)
+        : io_service(io_service), server(std::move(server)), port(std::move(port)), data_socket(io_service) {
     connectSocket();
 }
 
@@ -29,17 +30,10 @@ nlohmann::json SensorDataReceiver::receiveSensorData() {
         return nlohmann::json::parse(data);
     } catch (std::exception& e) {
         std::cerr << "Failed to parse sensor data: " << e.what() << std::endl;
-        return nlohmann::json();
+        return {};
     }
 }
 
 bool SensorDataReceiver::isConnected() const {
     return data_socket.is_open();
-}
-
-void SensorDataReceiver::reconnect() {
-    if (data_socket.is_open()) {
-        data_socket.close();
-    }
-    connectSocket();
 }

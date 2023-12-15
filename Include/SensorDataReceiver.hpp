@@ -7,10 +7,9 @@
 
 class SensorDataReceiver {
 public:
-    SensorDataReceiver(boost::asio::io_service& io_service, const std::string& server, const std::string& port);
+    SensorDataReceiver(boost::asio::io_service& io_service, std::string  server, std::string  port);
     nlohmann::json receiveSensorData();
-    bool isConnected() const;
-    void reconnect();
+    [[nodiscard]] bool isConnected() const;
 
 private:
     boost::asio::io_service& io_service;

@@ -65,13 +65,13 @@ void RobotController::processFrame(const cv::Mat& frame) {
             int cx = static_cast<int>(m.m10 / m.m00);
             int heading = static_cast<int>(70 - 140 * (static_cast<float>(cx) / frame.cols));
 
-            if (largestArea < 5000) { // Define AREA_THRESHOLD as per your requirement
-                // Object detected but not close enough
+            if (largestArea < 5000) { // Area threshold
+                // Continue driving if not close enough
                 lastKnownHeading = heading;
                 nlohmann::json j;
                 j["command"] = "AUTO";
                 j["heading"] = heading;
-                j["speed"] = speed; // Use the speed value
+                j["speed"] = speed;
                 std::string jsonString = j.dump();
 
                 std::cout << jsonString << std::endl;
@@ -79,19 +79,18 @@ void RobotController::processFrame(const cv::Mat& frame) {
             } else {
                 // Object is close, stop the robot
                 nlohmann::json j;
-                j["command"] = "S"; // You might need to handle this command in your robot control logic
+                j["command"] = "S";
                 std::string jsonString = j.dump();
 
                 std::cout << jsonString << std::endl;
                 commandSender.sendCommand(jsonString);
             }
         } else {
-            // No object detected, or object lost
-            // Here, you can decide whether to stop or continue in the last known direction
+            // No object detected, or object lost: drive in a circle until object is found again
             nlohmann::json j;
-            j["command"] = "AUTO"; // or "AUTO" to continue in the last known direction
+            j["command"] = "AUTO";
             j["heading"] = lastKnownHeading;
-            j["speed"] = 0.7; // Use the speed value
+            j["speed"] = 0.7;
             std::string jsonString = j.dump();
 
             std::cout << jsonString << std::endl;

@@ -16,7 +16,6 @@ public:
     void startReceiving();
     void stopReceiving();
     bool getNextFrame(cv::Mat& frame);
-    bool hasFrames() const;
 
 private:
     void receiveFrames();
