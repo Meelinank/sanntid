@@ -45,7 +45,6 @@ class SpheroServer:
 
     def init_sensor_control(self):
         try:
-            # Add sensor data handlers
             
             self.rvr.sensor_control.add_sensor_data_handler(
                 service=RvrStreamingServices.color_detection,
@@ -74,7 +73,7 @@ class SpheroServer:
         self.direction      = None
         self.heading        = None
         self.speed          = None
-        self.lock           = threading.Lock()  # Add a lock for thread-safe operations
+        self.lock           = threading.Lock()
 
 
     def start_server(self):
