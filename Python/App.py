@@ -84,6 +84,8 @@ class SpheroServer:
 
 
     def start_server(self):
+        self.bootScreen()
+
         print("Starting video server...")
         video_thread = threading.Thread(target=self.video_server)
         video_thread.start()
@@ -263,6 +265,15 @@ class SpheroServer:
         except Exception as e:
             print(f"Error stopping RVR: {e}")
 
+    def bootScreen(self):
+        print(" _____                                 ___   _____                   _   _     _ ")
+        print("|  __ \                               / _ \ /  ___|                 | | (_)   | |")
+        print("| |  \/_ __ _   _ _ __  _ __   ___   / /| | \ `--.  __ _ _ __  _ __ | |_ _  __| |")
+        print("| | __| '__| | | | '_ \| '_ \ / _ \ / /_| |  `--. \/ _` | '_ \| '_ \| __| |/ _` |")
+        print("| |_\ \ |  | |_| | |_) | |_) |  __/ \___  | /\__/ / (_| | | | | | | | |_| | (_| |")
+        print(" \____/_|   \__,_| .__/| .__/ \___|     |_/ \____/ \__,_|_| |_|_| |_|\__|_|\__,_|")
+        print("                 | |   | |                                                       ")
+        print("                 |_|   |_|                                                       ")
 
 if __name__ == "__main__":
     server = SpheroServer()
