@@ -8,18 +8,14 @@ The project consist of creating software that enables communication from a PC us
 ## PROJECT REQUIREMENTS
 There had to be an established communication between the software on PC and the Sphero RVR and Raspberry PI.\
 We were free to choose communication protocol and format.\
-Both manual and autonomous driving for the Sphero RVR should be implemented.\
-It is also required to display runtime information about the Sphero RVR to the user.\
-A big portion of the code is written in c++,
-as required.
-
+Both manual and autonomous control had to be implemented.\
+It was also required to display runtime information about the Sphero RVR to the user.\
 
 ## SOFTWARE
 The project is written using mainly C++ and Python.
 
 ### C++:
-The C++ code works by reading input from a user and sending commands to a Raspberry Pi using TCP.
-
+The C++ program works by reading input from a user and sending commands to a Raspberry Pi using TCP.
 
 Class descriptions:
 The CommandSender class is responsible for sending commands from the PC to the Raspberry Pi.\ 
@@ -35,12 +31,12 @@ The FrameReceiver class is responsible for receiving frames from the Raspberry P
 The frames are then displayed in the UI in the main function.
 
 Main function:\
-In the main function the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
+In the main function, the CommandSender, RobotController, SensorReceiver and FrameReceiver classes are initialized.\
 The main function contains the UI, which is used to send commands to the RVR and display sensor data and frames.\
-The UI is made using cvui, and will present the user with a window containing buttons for manual and automatic mode,\
+The UI is implemented by using cvui, and will present the user with a window containing buttons for manual and automatic mode,\
 and displays the sensor data. 
 
-The project uses multiple libraries such as: ```"boost-asio"```, ```"catch2"```, ```"sdl2"```, ```"opencv4"``` and ```"nlohmann-json"```.\
+The project uses multiple libraries such as: ```"boost-asio"```, ```"catch2"```, ```"opencv4"``` and ```"nlohmann-json"```.\
 These libraries are automatically installed by the project by CMake using vcpkg.
 To run the project it is required to provide a ```-DCMAKE_TOOLCHAIN_FILE``` configuration for vcpgk.
 
